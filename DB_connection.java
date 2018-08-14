@@ -27,13 +27,10 @@ public class DB_connection {
 	}
 	
 	public ResultSet execQuery(String query) {
-		ArrayList<DB_object> result = new ArrayList<DB_object>();
 		try{
 			ResultSet rs = stmt.executeQuery(query);
-			while(rs.next()) {
-				
+			while(rs.next()) {		
 				DB_object object= new DB_object(); 
-				result.add(object);
 			}
 			rs.close();
 		}
@@ -47,23 +44,47 @@ public class DB_connection {
 }
 
 /*
- * Future changes here. Now this model suppose that only one attribute every query return 
+ * Define some database objects.
  */
-class DB_object{
-	private BigInteger ID;
-	public DB_object () {
-		
-	}
-	public DB_object(BigInteger ID) {
-		this.ID = ID;
-	}
+class Employees{
+	private int emp_no;
+	private Date birth_date;
+	private String first_name;
+	private String last_name;
+	private char gender;
+	private Date hire_date;
 	
-	public BigInteger getID() {
-		return ID;
-	}
-	
-	public void setID(BigInteger ID) {
-		this.ID = ID;
-	}
-	
+}
+
+class Salaries{
+	private int emp_no;
+	private int salary;
+	private Date from_date;
+	private Date to_date;
+}
+
+class Title{
+	private int emp_no;
+	private String title;
+	private Date from_date;
+	private Date to_date;
+}
+
+class Department{
+	private int dept_no;
+	private String dept_name;
+}
+
+class Dept_manager{
+	private int emp_no;
+	private String dept_no;
+	private Date from_date;
+	private Date to_date;
+}
+
+class Dept_emp{
+	private int emp_no;
+	private String dept_no;
+	private Date from_date;
+	private Date to_date;
 }

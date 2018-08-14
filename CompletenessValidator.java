@@ -6,10 +6,13 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class CompletenessValidator {
-	OPE ope = new OPE();
+	OPE ope;
+	KeyStructure keys;
 	BigInteger expectedTulpe;
-	public CompletenessValidator() {
+	public CompletenessValidator(KeyStructure keys) {
 		expectedTulpe = BigInteger.ZERO;
+		ope = new OPE();
+		this.keys = keys;
 	}
 	
 	public boolean checkCompleteness(ArrayList<DB_object> dataset) {
@@ -25,8 +28,8 @@ public class CompletenessValidator {
 				
 		try {
 			// decrypt bound
-			BigInteger upperBound_plaintext = ope.OPE_decryption(upperBound);
-			BigInteger lowerBound_plaintext = ope.OPE_decryption(lowerBound);
+			BigInteger upperBound_plaintext = ope.OPE_decrypt(ciphertext, key, domain, range);
+			BigInteger lowerBound_plaintext = ope.OPE_decrypt(lowerBound);
 			expectedTulpe = upperBound_plaintext.subtract(lowerBound_plaintext).add(BigInteger.ONE);
 			
 			
