@@ -28,7 +28,7 @@ public class OPE {
 			params = new String[] {"-e", input.toString(), Integer.toString(key), Integer.toString(domain),
 					Integer.toString(range)};
 		}
-		Process p = r.exec(location + " " + params);
+		Process p = r.exec(location + " " + params); // process to run OPE.c
 		BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String line;
 		while ((line = is.readLine()) != null)
@@ -54,7 +54,7 @@ public class OPE {
 			return null;
 		}
 	}
-	public BigInteger OPE_encrypt(int plaintext, int key, int domain, int range) {
+	public BigInteger OPE_encrypt(long plaintext, int key, int domain, int range) {
 		return OPE_encrypt(BigInteger.valueOf(plaintext), key, domain, range);
 	}
 	/*
@@ -70,7 +70,7 @@ public class OPE {
 			return null;
 		}
 	}
-	public BigInteger OPE_decrypt(int ciphertext, int key, int domain, int range) throws IOException {
+	public BigInteger OPE_decrypt(long ciphertext, int key, int domain, int range) throws IOException {
 		return OPE_decrypt(BigInteger.valueOf(ciphertext), key, domain, range);
 	}
 

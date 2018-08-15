@@ -12,10 +12,11 @@ public class Query_parser {
 		query = query.toUpperCase();  // uppercase
 		Query_object qObj = new Query_object();
 		qObj.query = query;
+				
 		// has where condition
 		int range_index =Math.max(query.indexOf("<"), query.indexOf(">")) ;
 		if (range_index > 0) {
-			qObj.isRangeQuery = true;
+			qObj.isRangeQuery = true;	
 			String[] words = query.trim().split(" ");
 			for (int i = 0; i < words.length-1; i++) {
 				if (words[i+1].startsWith("<") || words[i+1].startsWith(">")) {

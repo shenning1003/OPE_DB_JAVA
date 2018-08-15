@@ -22,7 +22,7 @@ public class KeyReader {
 			String line = null;
 			TableKeys tableKeys = null;
 			while((line = bufferedReader.readLine().trim().toUpperCase()) != null) {
-				String[] words = line.split(" ");
+				String[] words = line.toUpperCase().split(" ");
 				if(words[0].equals("TABLE") && words.length == 3) {
 					if(tableKeys != null)
 						keys.addTableKey(tableKeys);
@@ -64,6 +64,13 @@ class KeyStructure{
 	public ArrayList<TableKeys> getAllKeys(){
 		return this.tablesKey;
 	}
+	public TableKeys getSingleTableKeys(String tableName) {
+		for(TableKeys tkey : tablesKey) {
+			if (tkey.getTableName().equals(tableName))
+				return tkey;
+		}
+		return null;
+	}
 }
 
 class TableKeys{
@@ -87,8 +94,16 @@ class TableKeys{
 		return this.fkNum;
 	}
 	
-	public ArrayList<ColumnKeys> getColumnsKey(){
+	public ArrayList<ColumnKeys> getAllColumnsKey(){
 		return this.columnsKey;
+	}
+	
+	public ColumnKeys getSingleColumnKey(String columnName) {
+		for(ColumnKeys c : columnsKey) {
+			if(c.getColumnName().equals(columnName))
+				return c;
+		}
+		return null;
 	}
 	
 	public void addColumn(ColumnKeys key) {
