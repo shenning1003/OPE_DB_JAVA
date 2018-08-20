@@ -15,7 +15,7 @@ public class CompletenessValidator {
 		this.keys = keys;
 	}
 	
-	public boolean checkCompleteness(ArrayList<DB_object> dataset) {
+	public boolean checkCompleteness(ArrayList<DB_object> dataset, ArrayList<String> columnNames) {
 		Collections.sort(dataset, new Comparator<DB_object>() {
 			@Override
 			public int compare(DB_object o1, DB_object o2) {

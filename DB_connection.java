@@ -39,9 +39,16 @@ public class DB_connection {
 		ArrayList<Employee> employees = new ArrayList<Employee>();
 		Query_object sqlObject = sqlParser.parse(query);
 		TableKeys tkeys = keys.getSingleTableKeys("EMPLOYEE");
+		// 1. tell which column is on range query
+		// 2. find smallest one and largest one on that column
+		// 3. decrypt, reencrypt, and validate
 		try{
 			ResultSet rs = stmt.executeQuery(query);
-			while(rs.next()) {		
+			while(rs.next()) {	
+				for(String columnName : sqlObject.rangeQueryNames){
+					
+				}
+				
 				Employee emp = new Employee();
 				long encrypted_emp_no = rs.getLong("emp_no");
 				emp.setEmp_no(ope.OPE_decrypt(encrypted_emp_no, key, domain, range));
