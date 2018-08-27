@@ -9,7 +9,9 @@ import java.util.ArrayList;
 /*
  * The keys are stored in such a structure.
  * TABLE XXX Num_of_fake_tuples
- * COLUMN XXX DOMAIN RANGE KEY1 KEY2 
+ * COLUMN XXX DOMAIN_MIN DOMAIN RANGE KEY1 KEY2 
+ * (numbers like birthday, not starts from 0. So for encryption, 
+ * we encrypt (VALUE - DOMAIN). Same changes in decryption )
  * ......
  */
 public class KeyReader {
