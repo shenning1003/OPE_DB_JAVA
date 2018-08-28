@@ -60,15 +60,15 @@ public class Helper {
 		return Long.parseLong(simpleDateFormat.format(input));
 	}
 	
-	public static void main(String args[]) {
-		BigInteger test = StringToNumber("HELLO");
-		System.out.println(test);
-		String hello = NumberToString(test);
-		System.out.println(hello);
-		
-		Date date = NumberToDate(19990404);
-		System.out.println(DateToNumber(date));
-		
-		
-	}
+//	public static void main(String args[]) {
+//		BigInteger test = StringToNumber("HELLO");
+//		System.out.println(test);
+//		String hello = NumberToString(test);
+//		System.out.println(hello);
+//		
+//		Date date = NumberToDate(19990404);
+//		System.out.println(DateToNumber(date));
+//		
+//		
+//	}
 }
