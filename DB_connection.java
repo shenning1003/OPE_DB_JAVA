@@ -47,8 +47,7 @@ public class DB_connection {
 			while(rs.next()) {	
 				for(String columnName : sqlObject.rangeQueryNames){
 					
-				}
-				
+				}				
 				Employee emp = new Employee();
 				long encrypted_emp_no = rs.getLong("emp_no");
 				emp.setEmp_no(ope.OPE_decrypt(encrypted_emp_no, key, domain, range));
@@ -64,12 +63,17 @@ public class DB_connection {
 		return employees;
 	}
 	
-	public ArrayList<Salary> QuerySalary(String query){
+	public ArrayList<Salary> QuerySalary(PreparedStatement stm){
 		ArrayList<Salary> salaries = new ArrayList<Salary>();
 		try {
-			ResultSet rs = stmt.executeQuery(query);
+			ResultSet rs = stm.executeQuery();
 			while(rs.next()) {
-				
+				int empId = rs.getInt("emp_no");
+				int salary = rs.getInt("salary");
+				Date from = rs.getDate("from_date");
+				Date to = rs.getDate("to_date");
+				Salary s = new Salary(empId, salary, from, to);
+				salaries.add(s);
 			}
 			rs.close();
 		}
@@ -77,6 +81,10 @@ public class DB_connection {
 			e.printStackTrace();
 		}
 		return salaries;
+	}
+	
+	public Connection getConnection(){
+		return this.conn;
 	}
 	
 	
@@ -119,6 +127,28 @@ class Salary{
 	private int salary;
 	private Date from_date;
 	private Date to_date;
+
+	public Salary(int emp_no, int salary, Date from, Date to){
+		this.emp_no = emp_no;
+		this.salary = salary;
+		this.from_date = from;
+		this.to_date = to;
+	}
+
+	public int setEmp_no(){
+		return this.emp_no;
+	}
+	
+	public int getSalary(){
+		return this.salary;
+	}
+	public Date getFromDate(){
+		return this.from_date;
+	}
+	public Date getToDate(){
+		return this.to_date;
+	}
+	
 }
 
 class Title{

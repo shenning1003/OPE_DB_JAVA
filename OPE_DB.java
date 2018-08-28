@@ -2,6 +2,9 @@ package OPE_DB;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class OPE_DB {
 
@@ -15,6 +18,19 @@ public class OPE_DB {
 	}
 	
 	public void EncryptDB() { //
+		
+	}
+	
+	private void EncryptSalaryTable(){
+		ArrayList<Salary> salaries = new ArrayList<Salary>();
+		try {
+			PreparedStatement stm = db.getConnection().prepareStatement("SELECT * FROM SALARY");
+			salaries = db.QuerySalary(stm);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 	}
 	
