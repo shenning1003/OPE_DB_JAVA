@@ -56,10 +56,9 @@ class Salary{
 		this.to_date = to;
 	}
 
-	public int setEmp_no(){
+	public int getEmp_no(){
 		return this.emp_no;
 	}
-	
 	public int getSalary(){
 		return this.salary;
 	}

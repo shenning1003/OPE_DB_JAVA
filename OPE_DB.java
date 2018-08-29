@@ -46,7 +46,14 @@ public class OPE_DB {
 		EncryptSalaryTable();
 	}
 	
-	private void EncryptSalaryTable(){
+	/*
+	 * Return status code, if success return 1, else return 0;
+	 */
+	private int EncryptSalaryTable(){
+		//first if we can find key file;
+		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
+		if(salaryTableKey == null)
+			return 0;
 		DB_connection db = new DB_connection();
 		ArrayList<Salary> salaries = new ArrayList<Salary>();
 		try {
@@ -56,17 +63,25 @@ public class OPE_DB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(salaries.size() == 0)
-			return;
+		if(salaries.size() == 0){
+			return 0;
+		}
 		else {
+			String sql = "INSERT INTO ope_salary VALUES (?, ?, ?, ?)";
 			for (Salary s : salaries) {
 				try {
-					PreparedStatement stmt = this.OPE_conn.prepareStatement("");
+					PreparedStatement insertStatement = this.OPE_conn.prepareStatement("");
+					ColumnKey empIdKey = salaryTableKey.getSingleColumn("emp_no");
+					BigInteger ope_emp_no = ope.OPE_encrypt(BigInteger.valueOf(s.getEmp_no()), empIdKey.getDataKey(), 
+							empIdKey.getDomainBit(), empIdKey.getRangeBit());
+					ColumnKey salaryKey = salaryTableKey.getSingleColumn("salary");
+					BigInteger ope_salary = ope.OPE_encrypt(plaintext, key, domainBit, rangeBit)
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}  
 			}
+			return 1;
 		}
 		
 	}
@@ -77,16 +92,16 @@ public class OPE_DB {
 			return;
 		if (keyFile.tablesKey.size() == 0)
 			return;
-		for (TableKeys tk : keyFile.tablesKey) {
+		for (TableKey tk : keyFile.tablesKey) {
 			StringBuffer sb = new StringBuffer();
 			for (int index =0; index < tk.get_fkNum(); index++) {
 				sb.append("INSERT INTO " + tk.getTableName()+ " (");
-				for (ColumnKeys ck : tk.getAllColumnsKey()) {
+				for (ColumnKey ck : tk.getAllColumnsKey()) {
 					sb.append(ck.getColumnName() + " ");
 				}
 				sb.append(") VALUES (");
-				for (ColumnKeys ck : tk.getAllColumnsKey()) {
-					BigInteger cipher = ope.OPE_encrypt(index, ck.getFakeKey(), ck.getDomain(), ck.getRange());
+				for (ColumnKey ck : tk.getAllColumnsKey()) {
+					BigInteger cipher = ope.OPE_encrypt(index, ck.getFakeKey(), ck.getDomainBit(), ck.getRangeBit());
 					sb.append(cipher + " ");
 				}
 				sb.append(")");

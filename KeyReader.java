@@ -22,21 +22,21 @@ public class KeyReader {
 			FileReader fileReader = new FileReader(file);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			String line = null;
-			TableKeys tableKeys = null;
+			TableKey tableKeys = null;
 			while((line = bufferedReader.readLine().trim().toUpperCase()) != null) {
 				String[] words = line.toUpperCase().split(" ");
 				if(words[0].equals("TABLE") && words.length == 3) {
 					if(tableKeys != null)
 						keys.addTableKey(tableKeys);
 					
-					tableKeys = new TableKeys(Integer.parseInt(words[2]));
+					tableKeys = new TableKey(Integer.parseInt(words[2]));
 					tableKeys.setTableName(words[1]);
 					
 				}else if(words[0].equals("COLUMN") && words.length == 6) {
-					ColumnKeys column = new ColumnKeys();
+					ColumnKey column = new ColumnKey();
 					column.setColumnName(words[1]);
-					column.setDomain(Integer.parseInt(words[2]));
-					column.setRange(Integer.parseInt(words[3]));
+					column.setDomainBit(Integer.parseInt(words[2]));
+					column.setRangeBit(Integer.parseInt(words[3]));
 					column.setDataKey(Integer.parseInt(words[4]));
 					column.setFakeKey(Integer.parseInt(words[5]));
 					tableKeys.addColumn(column);
@@ -56,18 +56,18 @@ public class KeyReader {
 }
 
 class KeyStructure{
-	ArrayList<TableKeys> tablesKey = new ArrayList<TableKeys>(); 
+	ArrayList<TableKey> tablesKey = new ArrayList<TableKey>(); 
 	public KeyStructure() {
-		this.tablesKey = new ArrayList<TableKeys>();
+		this.tablesKey = new ArrayList<TableKey>();
 	}
-	public void addTableKey(TableKeys tkeys) {
+	public void addTableKey(TableKey tkeys) {
 		tablesKey.add(tkeys);
 	}
-	public ArrayList<TableKeys> getAllKeys(){
+	public ArrayList<TableKey> getAllKeys(){
 		return this.tablesKey;
 	}
-	public TableKeys getSingleTableKeys(String tableName) {
-		for(TableKeys tkey : tablesKey) {
+	public TableKey getSingleTableKeys(String tableName) {
+		for(TableKey tkey : tablesKey) {
 			if (tkey.getTableName().equals(tableName))
 				return tkey;
 		}
@@ -75,14 +75,14 @@ class KeyStructure{
 	}
 }
 
-class TableKeys{
+class TableKey{
 	private int fkNum;
 	private String tableName;
-	private ArrayList<ColumnKeys> columnsKey; 
+	private ArrayList<ColumnKey> columnsKey; 
 	
-	public TableKeys(int fkNum) {
+	public TableKey(int fkNum) {
 		this.fkNum = fkNum;
-		columnsKey = new ArrayList<ColumnKeys>();
+		columnsKey = new ArrayList<ColumnKey>();
 	}
 	
 	public String getTableName() {
@@ -96,27 +96,27 @@ class TableKeys{
 		return this.fkNum;
 	}
 	
-	public ArrayList<ColumnKeys> getAllColumnsKey(){
+	public ArrayList<ColumnKey> getAllColumnsKey(){
 		return this.columnsKey;
 	}
 	
-	public ColumnKeys getSingleColumnKey(String columnName) {
-		for(ColumnKeys c : columnsKey) {
+	public ColumnKey getSingleColumn(String columnName) {
+		for(ColumnKey c : columnsKey) {
 			if(c.getColumnName().equals(columnName))
 				return c;
 		}
 		return null;
 	}
 	
-	public void addColumn(ColumnKeys key) {
+	public void addColumn(ColumnKey key) {
 		this.columnsKey.add(key);
 	}
 }
 
-class ColumnKeys{
+class ColumnKey{
 	private String columnName;
-	private int domain;
-	private int range;
+	private int domainBit;
+	private int rangeBit;
 	private int dataKey;
 	private int fakeKey;
 	
@@ -126,17 +126,17 @@ class ColumnKeys{
 	public void setColumnName(String name) {
 		this.columnName = name;
 	}
-	public int getDomain(){
-		return this.domain;
+	public int getDomainBit(){
+		return this.domainBit;
 	}
-	public void setDomain(int domain) {
-		this.domain = domain;
+	public void setDomainBit(int domain) {
+		this.domainBit = domain;
 	}
-	public int getRange() {
-		return this.range;
+	public int getRangeBit() {
+		return this.rangeBit;
 	}
-	public void setRange(int range) {
-		this.range = range;
+	public void setRangeBit(int range) {
+		this.rangeBit = range;
 	}
 	public int getDataKey() {
 		return this.dataKey;
