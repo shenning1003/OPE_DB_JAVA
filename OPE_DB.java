@@ -2,26 +2,52 @@ package OPE_DB;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
+/*
+ * Should include the functions of: Enc/Dec database, query encrypted DB and verify completeness; inserting/removing 
+ * fake tuples from the encrypted database
+ */
 public class OPE_DB {
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Drive";
+	static final String OPE_DB_URL = "";
 
-	KeyStructure keyFile;
+	static final String OPE_user = "";
+	static final String OPE_password = "";
+	
+	Query_parser sqlParser;
 	OPE ope;
-	DB_connection db;
-	public OPE_DB() {
+	KeyStructure keyFile;
+	private Connection OPE_conn;
+	private Statement OPE_stmt;
+	public OPE_DB(DB_connection conn) {
+		this.sqlParser = new Query_parser();
 		keyFile = KeyReader.readKey();
 		ope = new OPE();
-		db = new DB_connection(keyFile, ope);
+		try {
+			// register JDBC driver
+			Class.forName("com.mysql.jdbc.Driver");
+			OPE_conn = DriverManager.getConnection(OPE_DB_URL, OPE_user, OPE_password);
+			OPE_stmt = OPE_conn.createStatement();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
-	public void EncryptDB() { //
-		
+	/*
+	 * Create the ope encrypted database by creating each table
+	 */
+	public void EncryptDB() {
+		EncryptSalaryTable();
 	}
 	
 	private void EncryptSalaryTable(){
+		DB_connection db = new DB_connection();
 		ArrayList<Salary> salaries = new ArrayList<Salary>();
 		try {
 			PreparedStatement stm = db.getConnection().prepareStatement("SELECT * FROM SALARY");
@@ -30,7 +56,18 @@ public class OPE_DB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		if(salaries.size() == 0)
+			return;
+		else {
+			for (Salary s : salaries) {
+				try {
+					PreparedStatement stmt = this.OPE_conn.prepareStatement("");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 		
 	}
 	

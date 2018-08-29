@@ -151,9 +151,12 @@ int main(int argc, char **argv){
   ZZ in;
   ZZ output;
 
-  key = readKey(1);
-  plainbits = atoi(readKey(2));
-  cipherbits = atoi(readKey(3));
+  //key = readKey(1);
+  //plainbits = atoi(readKey(2));
+  //cipherbits = atoi(readKey(3));
+  key = argv[3];
+  plainbits = atoi(argv[4]);
+  cipherbits = atoi(argv[5]);
   //cout << key <<"\n"<< plainbits << "\n"<<cipherbits<<"\n";
   OPE *ope = new OPE(key, plainbits, cipherbits);
 
@@ -165,25 +168,26 @@ int main(int argc, char **argv){
       input = atoi(argv[2]);
       in = input;
       output = ope->encrypt(in);
-      cout<< "The plainText is: " << in << "\n";
-      cout<< "The cipher is: "<< output << "\n";
+      //cout<< "The plainText is: " << in << "\n";
+      //cout<< "The cipher is: "<< output << "\n";
      break;
       case 'd':
      in = to_ZZ(argv[2]);
-     cout<< in << "\n";
+     //cout<< in << "\n";
      output = ope->decrypt(in);
-     cout<< "The cipher is: " << in << "\n";
-     cout<< "The plainText is: "<< output << "\n";
+     //cout<< "The cipher is: " << in << "\n";
+     //cout<< "The plainText is: "<< output << "\n";
      break;
       case 't':
       for(ZZ test = to_ZZ("193839877773639"); test < to_ZZ("16897223547984945414");test = test + 10000001123){
           output = ope->decrypt(test);
-          cout << "Plaintest is : " << output << endl;
-          cout << "CipherTest is : " << test << endl;
+          //cout << "Plaintest is : " << output << endl;
+          //cout << "CipherTest is : " << test << endl;
       }
     }
     break;
   }
+  cout<< output;
   exit(0);
   return 1;
   /*

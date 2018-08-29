@@ -1,5 +1,6 @@
 package OPE_DB;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,18 +31,14 @@ public class OPE {
 			params = new String[] {"-e", input.toString(), Integer.toString(key), Integer.toString(domainBit),
 					Integer.toString(rangeBit)};
 		}
-		Process p = r.exec(location + " " + params); // process to run OPE.c
-		BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		Process p = r.exec(location + " " + String.join(" ", params)); // process to run OPE.c
+		BufferedInputStream in = new BufferedInputStream(p.getInputStream());
+		BufferedReader inBr = new BufferedReader(new InputStreamReader(in));
 		String line;
-		while ((line = is.readLine()) != null)
+		while ((line = inBr.readLine()) != null) {
 			result += line;
-		try {
-			p.waitFor();
-		}catch(InterruptedException e) {
-			System.err.println(e);
-			return null;
 		}
-		System.out.println(result);
+		//System.out.println(result);
 		return new BigInteger(result);
 	}
 	
@@ -88,10 +85,16 @@ public class OPE {
 		return OPE_decrypt(BigInteger.valueOf(ciphertext), key, domainBit, rangeBit);
 	}
 
+	/*
+	 * Test cases for external OPE program, looks good
+	 */
 	public static void main(String args[]){
 		OPE ope = new OPE();
 		try {
-			ope.OPE_call('e', BigInteger.valueOf(111333), 123455, 16, 64);
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(10), 123455, 16, 64));
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(11), 123455, 16, 64));
+			System.out.println(ope.OPE_encrypt(BigInteger.valueOf(10), 123455, 16, 64));
+			System.out.println(ope.OPE_decrypt(new BigInteger("3121788886969026"), 123455, 16, 64));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
