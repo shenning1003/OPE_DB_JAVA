@@ -45,6 +45,29 @@ public class OPE {
 	/*
 	 * Call OPE to encypte a number 
 	 */
+	public BigInteger simple_OPE_encrypt(BigInteger plaintext, int key, int domainBit, int rangeBit) {
+		try {
+			return OPE_call('e', plaintext, key, domainBit, rangeBit);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public BigInteger simple_OPE_decrypt(BigInteger ciphertext, int key, int domainBit, int rangeBit) {
+		try {
+			return  OPE_call('d', ciphertext, key, domainBit, rangeBit);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/*
+	 * Non-deterministic OPE
+	 */
 	public BigInteger OPE_encrypt(BigInteger plaintext, int key, int domainBit, int rangeBit) {
 		try {
 			BigInteger lower = OPE_call('e', plaintext, key, domainBit, rangeBit);

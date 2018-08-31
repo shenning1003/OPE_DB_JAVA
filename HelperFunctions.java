@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
-public class Helper {
+public class HelperFunctions {
 	public static BigInteger StringToNumber(String input){
 		/*
 		 * suppose the max string length is 15 chars
@@ -58,6 +58,16 @@ public class Helper {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 		
 		return Long.parseLong(simpleDateFormat.format(input));
+	}
+	
+	
+	public static boolean charArrayContains(char c, char[] array) {
+		for (char x : array) {
+			if (x == c) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 //	public static void main(String args[]) {

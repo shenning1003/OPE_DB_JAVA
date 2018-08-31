@@ -44,7 +44,12 @@ public class OPE_DB {
 	 * Create the ope encrypted database by creating each table
 	 */
 	public void EncryptDB() {
-		EncryptSalaryTable();
+		try {
+			EncryptSalaryTable();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/*
@@ -82,11 +87,11 @@ public class OPE_DB {
 							salaryKey.getDomainBit(), salaryKey.getRangeBit());
 					// from_date column
 					ColumnKey fromDateKey = salaryTableKey.getSingleColumn("from_date");
-					BigInteger ope_fromDate = ope.OPE_encrypt(BigInteger.valueOf(Helper.DateToNumber(s.getFromDate())),
+					BigInteger ope_fromDate = ope.OPE_encrypt(BigInteger.valueOf(HelperFunctions.DateToNumber(s.getFromDate())),
 							fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit());
 					// from_to column
 					ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
-					BigInteger ope_toDate = ope.OPE_decrypt(BigInteger.valueOf(Helper.DateToNumber(s.getToDate())),
+					BigInteger ope_toDate = ope.OPE_decrypt(BigInteger.valueOf(HelperFunctions.DateToNumber(s.getToDate())),
 							toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit());
 					// create query
 					
@@ -127,20 +132,55 @@ public class OPE_DB {
 			return;
 		if (keyFile.tablesKey.size() == 0)
 			return;
-		for (TableKey tk : keyFile.tablesKey) {
-			StringBuffer sb = new StringBuffer();
-			for (int index = 0; index < tk.get_fkNum(); index++) {
-				sb.append("INSERT INTO " + tk.getTableName() + " (");
-				for (ColumnKey ck : tk.getAllColumnsKey()) {
-					sb.append(ck.getColumnName() + " ");
-				}
-				sb.append(") VALUES (");
-				for (ColumnKey ck : tk.getAllColumnsKey()) {
-					BigInteger cipher = ope.OPE_encrypt(index, ck.getFakeKey(), ck.getDomainBit(), ck.getRangeBit());
-					sb.append(cipher + " ");
-				}
-				sb.append(")");
-			}
+		try {
+			InsertSalaryTable();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+	
+	}
+	
+	private void InsertSalaryTable() throws SQLException {
+		PreparedStatement insertStatement = null;
+		String sql = "INSERT INTO ope_salary VALUES (?,?,?,?)";
+		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
+		int num = salaryTableKey.get_fkNum();
+		while (num > 0) {
+			try {
+				insertStatement = OPE_conn.prepareStatement(sql);
+				BigInteger emp_no = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("emp_no").getFakeKey(),
+						salaryTableKey.getSingleColumn("emp_no").getDomainBit(), 
+						salaryTableKey.getSingleColumn("emp_no").getRangeBit());
+				BigInteger salary = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("salary").getFakeKey(),
+						salaryTableKey.getSingleColumn("salary").getDomainBit(), 
+						salaryTableKey.getSingleColumn("salary").getRangeBit());
+				BigInteger from_date = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("from_date").getFakeKey(),
+						salaryTableKey.getSingleColumn("from_date").getDomainBit(), 
+						salaryTableKey.getSingleColumn("from_date").getRangeBit());
+				BigInteger to_date = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("from_date").getFakeKey(),
+						salaryTableKey.getSingleColumn("from_date").getDomainBit(), 
+						salaryTableKey.getSingleColumn("from_date").getRangeBit());
+				insertStatement.setString(1, emp_no.toString());
+				insertStatement.setString(2, salary.toString());
+				insertStatement.setString(3, from_date.toString());
+				insertStatement.setString(4, to_date.toString());
+				insertStatement.executeUpdate();
+				OPE_conn.commit();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally {
+				  if(insertStatement != null) {
+					  insertStatement.close();
+				  }
+				  OPE_conn.setAutoCommit(true);
+			}
+
+
+			
+			
+		}
+		
 	}
 }
