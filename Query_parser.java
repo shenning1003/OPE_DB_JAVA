@@ -9,7 +9,7 @@ public class Query_parser {
 	
 	KeyStructure dataBaseKeys;
 	static final char[] characters= {'<', '>', '='};
-	static final List<String> comparisons = Arrays.asList("<",">","<>","<=",">=", "=");
+	static final List<String> symbol = Arrays.asList("<",">","<>","<=",">=", "=");
 	public Query_parser() {}
 	
 	public Query_object parseQuery(String query) {
@@ -60,8 +60,7 @@ public class Query_parser {
 			}
 			// else, from "where" to iterate all the conditions
 			for (int i= whereIndex; i < words.length; i++) {
-				if(comparisons.contains(words[i])) {
-					
+				if(symbol.contains(words[i])) {
 				}
 			}
 		}
@@ -126,12 +125,12 @@ public class Query_parser {
 		String attribute;
 		BigInteger lower;
 		BigInteger upper;
-		String comparision;
+		String symbol;
 		// if one bounday value is passed, which means it is a single select
 		public AttributeRange(String attribute, BigInteger value, String comparision) {
 			this.attribute = attribute;
 			this.lower = this.upper = value;
-			this.comparision = comparision; 
+			this.symbol = comparision; 
 		}
 		
 		// for range query
@@ -139,7 +138,7 @@ public class Query_parser {
 			this.attribute = attribute;
 			this.lower = lower;
 			this.upper = upper;
-			this.comparision = comparision;
+			this.symbol = comparision;
 		}
 	}
 }
