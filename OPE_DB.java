@@ -27,9 +27,10 @@ public class OPE_DB {
 	private Statement OPE_stmt;
 
 	public OPE_DB(DB_connection conn) {
-		this.sqlParser = new Query_parser();
 		keyFile = KeyReader.readKey();
 		ope = new OPE();
+		this.sqlParser = new Query_parser(keyFile, ope);
+			
 		try {
 			// register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
@@ -87,11 +88,11 @@ public class OPE_DB {
 							salaryKey.getDomainBit(), salaryKey.getRangeBit());
 					// from_date column
 					ColumnKey fromDateKey = salaryTableKey.getSingleColumn("from_date");
-					BigInteger ope_fromDate = ope.OPE_encrypt(BigInteger.valueOf(HelperFunctions.DateToNumber(s.getFromDate())),
+					BigInteger ope_fromDate = ope.OPE_encrypt(HelperFunctions.DateToNumber(s.getFromDate()),
 							fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit());
 					// from_to column
 					ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
-					BigInteger ope_toDate = ope.OPE_decrypt(BigInteger.valueOf(HelperFunctions.DateToNumber(s.getToDate())),
+					BigInteger ope_toDate = ope.OPE_decrypt(HelperFunctions.DateToNumber(s.getToDate()),
 							toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit());
 					// create query
 					

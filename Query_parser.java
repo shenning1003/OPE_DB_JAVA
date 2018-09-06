@@ -1,8 +1,11 @@
 package OPE_DB;
 
 import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +73,6 @@ public class Query_parser {
 			for (int i = fromIndex+1; i < whereIndex; i++) {
 				sb.append(words[i]+ " ");
 				if (joinKeywords.contains(words[i])|| words[i].endsWith(",")) {
-					if (i-current <1)
-						continue;
 					if (i - current == 1) {
 						qObj.tableAlias.put(words[current], words[current]);
 					}
@@ -101,7 +102,7 @@ public class Query_parser {
 			for (int i= whereIndex; i < words.length; i++) {
 				if(symbol.contains(words[i])) {
 					String[] split = words[i-1].split(".");
-					String tableName, columnName;
+					String tableName="", columnName="";
 					if(split.length == 1) {
 						Map.Entry<String, String> entry = qObj.tableAlias.entrySet().iterator().next();
 						tableName = entry.getValue();
@@ -119,35 +120,64 @@ public class Query_parser {
 							.getDomainBit();
 					int rangeBit = this.dataBaseKeys.getSingleTableKeys(tableName).getSingleColumn(columnName)
 							.getRangeBit();
-					if (words[i+1].startsWith("\"") && words[i+1].endsWith("\"")) { // string
+					BigInteger value = null;
+					if (words[i+1].startsWith("\"") && words[i+1].endsWith("\"")) {
 						String str = words[i+1].replaceAll("^\"|\"$", "");
-						BigInteger strValue = null;
-						if (words[i].equals("<") || words[i].equals("<=")) {
-							strValue = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str), key, domainBit, rangeBit);
-							AttributeRange ar = new AttributeRange(tableName, columnName, strValue, words[i]);
-							qObj.addRangeColumn(ar);
-							sb.append(words[i-1] + " < "  + strValue.toString() + " ");
-						}
-						else if (words[i].equals(">") || words[i].equals(">=")) {
-							strValue = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str).add(BigInteger.ONE)
-									, key, domainBit, rangeBit);
-							AttributeRange ar = new AttributeRange(tableName, columnName, strValue, words[i]);
-							qObj.addRangeColumn(ar);
-							sb.append(words[i-1] + " > " + strValue.toString() + " ");
-						}
-						else if(words[i].equals("=")) {
-							BigInteger upper = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str).add(BigInteger.ONE)
-									, key, domainBit, rangeBit);
-							BigInteger lower = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str), 
-									key, domainBit, rangeBit);
-							// a > low && a < high
-							AttributeRange ar1 = new AttributeRange(tableName, columnName, lower, ">");
-							AttributeRange ar2 = new AttributeRange(tableName, columnName, upper, "<");
-							sb.append("(" + words[i-1] + " < " + ar2.toString() + " AND " + words[i-1] + " > " + ar1.toString() );
-						}
+						value = HelperFunctions.StringToNumber(str);
 					}
-					else if(words[i+1].matches("\\d{4}-\\d{2}-\\d{2}")) {
-						BigInteger dateValue = ope.simple_OPE_decrypt(ciphertext, key, domainBit, rangeBit)
+					else if(words[i+1].matches("\\d{4}-\\d{2}-\\d{2}")){
+						//String str = words[i+1].replaceAll("[\\-]", "");
+						String pattern = "yyyy-MM-dd";
+						SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+						Date date = new Date();
+						try {
+							date = simpleDateFormat.parse(words[i+1]);
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						value = HelperFunctions.DateToNumber(date);
+					}
+					else{
+						value = BigInteger.valueOf(Long.parseLong(words[i+1]));
+					}
+					
+					BigInteger cipherValue = null;
+					if (words[i].equals("<") || words[i].equals("<=")) {
+						cipherValue = ope.simple_OPE_encrypt(value, key, domainBit, rangeBit);
+						AttributeRange ar = new AttributeRange(tableName, columnName, cipherValue, words[i]);
+						qObj.addRangeColumn(ar);
+						sb.append(words[i-1] + " < "  + cipherValue.toString() + " ");
+					}
+					else if (words[i].equals(">") || words[i].equals(">=")) {
+						cipherValue = ope.simple_OPE_encrypt(value.add(BigInteger.ONE)
+								, key, domainBit, rangeBit);
+						AttributeRange ar = new AttributeRange(tableName, columnName, cipherValue, words[i]);
+						qObj.addRangeColumn(ar);
+						sb.append(words[i-1] + " > " + cipherValue.toString() + " ");
+					}
+					else if(words[i].equals("=")) {
+						BigInteger upper = ope.simple_OPE_encrypt(value.add(BigInteger.ONE)
+								, key, domainBit, rangeBit);
+						BigInteger lower = ope.simple_OPE_encrypt(value, 
+								key, domainBit, rangeBit);
+						// a > low && a < high
+						AttributeRange ar1 = new AttributeRange(tableName, columnName, lower, ">");
+						AttributeRange ar2 = new AttributeRange(tableName, columnName, upper, "<");
+						qObj.addRangeColumn(ar1);
+						qObj.addRangeColumn(ar2);
+						sb.append("(" + words[i-1] + " < " + ar2.toString() + " AND " + words[i-1] + " > " + ar1.toString() );
+					}
+					else{ // not equal
+						BigInteger upper = ope.simple_OPE_encrypt(value.add(BigInteger.ONE)
+								, key, domainBit, rangeBit);
+						BigInteger lower = ope.simple_OPE_encrypt(value, 
+								key, domainBit, rangeBit);
+						AttributeRange ar1 = new AttributeRange(tableName, columnName, lower, ">");
+						AttributeRange ar2 = new AttributeRange(tableName, columnName, upper, "<");
+						qObj.addRangeColumn(ar1);
+						qObj.addRangeColumn(column);
+						sb.append("(" + words[i-1] + " < " + ar2.toString() + " OR " + words[i-1] + " > " + ar1.toString() );
 					}
 				}
 			}
@@ -161,77 +191,116 @@ public class Query_parser {
 		this.dataBaseKeys = keys;
 	}
 	
-	class Query_object{
-		// alias to real table name
-		HashMap<String, String> tableAlias = new HashMap<String, String>(); 
-		String originalQuery;
-		String translatedQuery;
-		boolean isRangeQuery;
-		boolean isJoinQuery;
-		ArrayList<AttributeRange> rangeQueryAttributes = new ArrayList<AttributeRange>();
-		ArrayList<String> returnAttributes = new ArrayList<String>();
+	public void getTranslatedRange(String[] words, StringBuffer sb, int i, String tableName, String columnName, Query_object qObj){
+		int key = this.dataBaseKeys.getSingleTableKeys(tableName).getSingleColumn(columnName).getDataKey();
+		int domainBit = this.dataBaseKeys.getSingleTableKeys(tableName).getSingleColumn(columnName)
+				.getDomainBit();
+		int rangeBit = this.dataBaseKeys.getSingleTableKeys(tableName).getSingleColumn(columnName)
+				.getRangeBit();
 		
-		
-		public String getOriginalQuery() {
-			return originalQuery;
+		String str = words[i+1].replaceAll("^\"|\"$", "");
+		BigInteger strValue = null;
+		if (words[i].equals("<") || words[i].equals("<=")) {
+			strValue = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str), key, domainBit, rangeBit);
+			AttributeRange ar = new AttributeRange(tableName, columnName, strValue, words[i]);
+			qObj.addRangeColumn(ar);
+			sb.append(words[i-1] + " < "  + strValue.toString() + " ");
 		}
-		public void setOriginalQuery(String query) {
-			this.originalQuery = query;
+		else if (words[i].equals(">") || words[i].equals(">=")) {
+			strValue = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str).add(BigInteger.ONE)
+					, key, domainBit, rangeBit);
+			AttributeRange ar = new AttributeRange(tableName, columnName, strValue, words[i]);
+			qObj.addRangeColumn(ar);
+			sb.append(words[i-1] + " > " + strValue.toString() + " ");
 		}
-		public String getTranslatedQuery() {
-			return translatedQuery;
+		else if(words[i].equals("=")) {
+			BigInteger upper = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str).add(BigInteger.ONE)
+					, key, domainBit, rangeBit);
+			BigInteger lower = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str), 
+					key, domainBit, rangeBit);
+			// a > low && a < high
+			AttributeRange ar1 = new AttributeRange(tableName, columnName, lower, ">");
+			AttributeRange ar2 = new AttributeRange(tableName, columnName, upper, "<");
+			sb.append("(" + words[i-1] + " < " + ar2.toString() + " AND " + words[i-1] + " > " + ar1.toString() );
 		}
-		public void setTranslatedQuery(String query) {
-			this.translatedQuery = query;
+		else{ // not equal
+			
 		}
-		
-		public boolean getIsRangeQuery() {
-			return isRangeQuery;
-		}
-		public void setIsRangeQuery(boolean isRangeQuery) {
-			this.isRangeQuery = isRangeQuery;
-		}
-		
-		public boolean getIsJoinQuery() {
-			return isJoinQuery;
-		}
-		
-		public void setIsJoinQuery(boolean isJoinQuery) {
-			this.isJoinQuery = isJoinQuery;
-		}
-		
-		public void addRangeColumn(AttributeRange column) {
-			this.rangeQueryAttributes.add(column);
-		}
-		public ArrayList<AttributeRange> getRangeColumn() {
-			return this.rangeQueryAttributes;
-		}
-		
-		
 	}
-	/*
-	 */
-	class AttributeRange{
-		String table;
-		String attribute;
-		BigInteger lower;
-		BigInteger upper;
-		String symbol;
-		// if one bounday value is passed, which means it is a single select
-		public AttributeRange(String table, String attribute, BigInteger value, String comparision) {
-			this.table = table;
-			this.attribute = attribute;
-			this.lower = this.upper = value;
-			this.symbol = comparision; 
-		}
-		
-		// for range query
-		public AttributeRange(String table, String attribute, BigInteger lower, BigInteger upper, String comparision) {
-			this.table = table;
-			this.attribute = attribute;
-			this.lower = lower;
-			this.upper = upper;
-			this.symbol = comparision;
-		}
+}
+
+class Query_object{
+	// alias to real table name
+	HashMap<String, String> tableAlias = new HashMap<String, String>(); 
+	String originalQuery;
+	String translatedQuery;
+	boolean isRangeQuery;
+	boolean isJoinQuery;
+	ArrayList<AttributeRange> rangeQueryAttributes = new ArrayList<AttributeRange>();
+	ArrayList<String> returnAttributes = new ArrayList<String>();
+	
+	
+	public String getOriginalQuery() {
+		return originalQuery;
+	}
+	public void setOriginalQuery(String query) {
+		this.originalQuery = query;
+	}
+	public String getTranslatedQuery() {
+		return translatedQuery;
+	}
+	public void setTranslatedQuery(String query) {
+		this.translatedQuery = query;
+	}
+	
+	public boolean getIsRangeQuery() {
+		return isRangeQuery;
+	}
+	public void setIsRangeQuery(boolean isRangeQuery) {
+		this.isRangeQuery = isRangeQuery;
+	}
+	
+	public boolean getIsJoinQuery() {
+		return isJoinQuery;
+	}
+	
+	public void setIsJoinQuery(boolean isJoinQuery) {
+		this.isJoinQuery = isJoinQuery;
+	}
+	
+	public void addRangeColumn(AttributeRange column) {
+		this.rangeQueryAttributes.add(column);
+	}
+	public ArrayList<AttributeRange> getRangeColumn() {
+		return this.rangeQueryAttributes;
+	}
+	
+	
+}
+
+
+/*
+ */
+class AttributeRange{
+	String table;
+	String attribute;
+	BigInteger lower;
+	BigInteger upper;
+	String symbol;
+	// if one bounday value is passed, which means it is a single select
+	public AttributeRange(String table, String attribute, BigInteger value, String comparision) {
+		this.table = table;
+		this.attribute = attribute;
+		this.lower = this.upper = value;
+		this.symbol = comparision; 
+	}
+	
+	// for range query
+	public AttributeRange(String table, String attribute, BigInteger lower, BigInteger upper, String comparision) {
+		this.table = table;
+		this.attribute = attribute;
+		this.lower = lower;
+		this.upper = upper;
+		this.symbol = comparision;
 	}
 }

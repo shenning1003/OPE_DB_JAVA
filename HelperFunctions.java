@@ -53,11 +53,11 @@ public class HelperFunctions {
 	}
 	
 	
-	public static long DateToNumber(Date input){
+	public static BigInteger DateToNumber(Date input){
 		String pattern = "yyyyMMdd";
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 		
-		return Long.parseLong(simpleDateFormat.format(input));
+		return BigInteger.valueOf(Long.parseLong(simpleDateFormat.format(input)));
 	}
 	
 	
