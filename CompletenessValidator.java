@@ -15,39 +15,26 @@ public class CompletenessValidator {
 		this.keys = keys;
 	}
 	
-	public BigInteger[] checkCompleteness(Query_object qObj) {
-		String tableName = qObj.ta
-		BigInteger upperBound = dataset.get(dataset.size()-1).getID();
-		BigInteger lowerBound = dataset.get(0).getID();
-				
-		try {
-			// decrypt bound
-			BigInteger upperBound_plaintext = ope.OPE_decrypt(ciphertext, key, domain, range);
-			BigInteger lowerBound_plaintext = ope.OPE_decrypt(lowerBound);
-			expectedTulpe = upperBound_plaintext.subtract(lowerBound_plaintext).add(BigInteger.ONE);
-			
-			
-			// re-encrypt bound
-			BigInteger upperBound_reencrypt = ope.OPE_encryption(upperBound_plaintext);
-			BigInteger lowerBound_reencrypt = ope.OPE_encryption(lowerBound_plaintext);
-			
-			if (upperBound_reencrypt.compareTo(upperBound) < 0 ) {
-				expectedTulpe.subtract(BigInteger.ONE);
+	public ArrayList<BigInteger> checkCompleteness(Query_object qObj) {
+		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
+		for( AttributeRange ar : qObj.getRangeColumn()){
+			String tableName = ar.table;
+			String attributeName = ar.attribute;
+			int numOfFake = keys.getSingleTableKeys(tableName).get_fkNum();
+			int key = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeKey();
+			int domainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getDomainBit();
+			int rangeBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getRangeBit();
+			if (ar.lower.equals(ar.upper)){
+				BigInteger decryptedValue = ope.simple_OPE_decrypt(ar.lower, key, domainBit, rangeBit);
+				BigInteger reEncryptedValue = ope.simple_OPE_encrypt(decryptedValue, key, domainBit, rangeBit);
+				if ()
 			}
-			if (lowerBound_reencrypt.compareTo(val))
-				
+			else{
+				if 
+			}
 			
-		}catch(Exception e) {
-			
-		}
-		
-		
-		// re-encrypt bound
-		
-		
-		
-		
-		return false;
+ 		}
+		return result;
 	}
 
 }
