@@ -15,14 +15,8 @@ public class CompletenessValidator {
 		this.keys = keys;
 	}
 	
-	public boolean checkCompleteness(ArrayList<DB_object> dataset, ArrayList<String> columnNames) {
-		Collections.sort(dataset, new Comparator<DB_object>() {
-			@Override
-			public int compare(DB_object o1, DB_object o2) {
-				// TODO Auto-generated method stub
-				return o2.getID().compareTo(o1.getID());
-			}	
-		});
+	public BigInteger[] checkCompleteness(Query_object qObj) {
+		String tableName = qObj.ta
 		BigInteger upperBound = dataset.get(dataset.size()-1).getID();
 		BigInteger lowerBound = dataset.get(0).getID();
 				

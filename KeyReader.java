@@ -18,18 +18,18 @@ public class KeyReader {
 	public static KeyStructure readKey() {
 		KeyStructure keys = new KeyStructure();
 		try {
-			File file = new File("Keys");
+			File file = new File("./keys");
 			FileReader fileReader = new FileReader(file);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			String line = null;
 			TableKey tableKeys = null;
-			while((line = bufferedReader.readLine().trim().toUpperCase()) != null) {
+			while((line = bufferedReader.readLine()) != null) {
 				String[] words = line.toUpperCase().split(" ");
 				if(words[0].equals("TABLE") && words.length == 3) {
 					if(tableKeys != null)
 						keys.addTableKey(tableKeys);
 					
-					tableKeys = new TableKey(Integer.parseInt(words[2]));
+					tableKeys = new TableKey(words[1], Integer.parseInt(words[2]));
 					tableKeys.setTableName(words[1]);
 					
 				}else if(words[0].equals("COLUMN") && words.length == 6) {
@@ -41,10 +41,11 @@ public class KeyReader {
 					column.setFakeKey(Integer.parseInt(words[5]));
 					tableKeys.addColumn(column);
 				}else {
-					System.out.println("Warning");
-					break;
+					//System.out.println("Warning");
+					continue;
 				}
 			}
+			keys.addTableKey(tableKeys);
 			
 		}catch(IOException e) {
 			e.printStackTrace();
@@ -80,7 +81,7 @@ class TableKey{
 	private String tableName;
 	private ArrayList<ColumnKey> columnsKey; 
 	
-	public TableKey(int fkNum) {
+	public TableKey(String tableName, int fkNum) {
 		this.fkNum = fkNum;
 		columnsKey = new ArrayList<ColumnKey>();
 	}

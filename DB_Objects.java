@@ -43,6 +43,32 @@ class Employee{
 	
 }
 
+class SalaryCipher{
+	private String emp_no;
+	private String salary;
+	private String from_date;
+	private String to_date;
+	
+	public SalaryCipher(String empno, String salary, String from_date, String to_date) {
+		this.emp_no = empno;
+		this.salary = salary;
+		this.from_date = from_date;
+		this.to_date = to_date;
+	}
+	public String getEmp_no() {
+		return this.emp_no;
+	}
+	public String getSalary() {
+		return this.salary;
+	}
+	public String getFrom_date() {
+		return this.from_date;
+	}
+	public String getTo_date() {
+		return this.to_date;
+	}
+}
+
 class Salary{
 	private int emp_no;
 	private int salary;

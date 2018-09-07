@@ -3,7 +3,6 @@ package OPE_DB;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
-import OPE_DB.Query_parser.Query_object;
 
 /*
  * Connect with the original DB; 

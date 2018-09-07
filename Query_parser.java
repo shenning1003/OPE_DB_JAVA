@@ -42,6 +42,9 @@ public class Query_parser {
 					sb.append(" ");
 				}
 			}
+			else {
+				sb.append(query.charAt(i));
+			}
 		}
 		// reset query string, so we can split by space
 		query = sb.toString();
@@ -56,6 +59,7 @@ public class Query_parser {
 		case "DELETE":
 			break;
 		case "SELECT":
+			sb.append("SELECT");
 			int fromIndex = Arrays.asList(words).indexOf("FROM");
 			if(fromIndex == -1)
 				return null;
@@ -70,9 +74,9 @@ public class Query_parser {
 			// find all the tables and their alias
 			int current = fromIndex +1;
 			sb.append("FROM "); // building here
-			for (int i = fromIndex+1; i < whereIndex; i++) {
+			for (int i = fromIndex+1; i <= whereIndex; i++) {
 				sb.append(words[i]+ " ");
-				if (joinKeywords.contains(words[i])|| words[i].endsWith(",")) {
+				if (joinKeywords.contains(words[i])|| words[i].endsWith(",") || words[i].equals("WHERE")) {
 					if (i - current == 1) {
 						qObj.tableAlias.put(words[current], words[current]);
 					}
@@ -97,18 +101,23 @@ public class Query_parser {
 				qObj.translatedQuery = query;
 				return qObj;
 			}
-			sb.append("WHERE ");
 			// else, from "where" to iterate all the conditions
 			for (int i= whereIndex; i < words.length; i++) {
+				String text = words[i];
+				
+				if (words[i].equals("AND") || words[i].equals("OR") || words[i].equals("NOT")) {
+					sb.append(words[i]);
+				}
 				if(symbol.contains(words[i])) {
-					String[] split = words[i-1].split(".");
+					
 					String tableName="", columnName="";
-					if(split.length == 1) {
+					if(!words[i-1].contains(".")) {
 						Map.Entry<String, String> entry = qObj.tableAlias.entrySet().iterator().next();
 						tableName = entry.getValue();
 						columnName = words[i-1];
 					}
-					else if(split.length == 2){
+					else if(words[i].contains(".")){
+						String[] split = words[i-1].split(".");
 						tableName = qObj.tableAlias.get(split[0]);
 						columnName = split[1];
 					}
@@ -166,7 +175,7 @@ public class Query_parser {
 						AttributeRange ar2 = new AttributeRange(tableName, columnName, upper, "<");
 						qObj.addRangeColumn(ar1);
 						qObj.addRangeColumn(ar2);
-						sb.append("(" + words[i-1] + " < " + ar2.toString() + " AND " + words[i-1] + " > " + ar1.toString() );
+						sb.append("(" + words[i-1] + " < " + upper + " AND " + words[i-1] + " > " + lower + ") " );
 					}
 					else{ // not equal
 						BigInteger upper = ope.simple_OPE_encrypt(value.add(BigInteger.ONE)
@@ -176,11 +185,13 @@ public class Query_parser {
 						AttributeRange ar1 = new AttributeRange(tableName, columnName, lower, ">");
 						AttributeRange ar2 = new AttributeRange(tableName, columnName, upper, "<");
 						qObj.addRangeColumn(ar1);
-						qObj.addRangeColumn(column);
-						sb.append("(" + words[i-1] + " < " + ar2.toString() + " OR " + words[i-1] + " > " + ar1.toString() );
+						qObj.addRangeColumn(ar2);
+						sb.append("(" + words[i-1] + " < " + lower + " OR " + words[i-1] + " > " + upper +") ");
 					}
 				}
 			}
+			qObj.translatedQuery = sb.toString();
+			
 		}
 
 		
@@ -191,42 +202,14 @@ public class Query_parser {
 		this.dataBaseKeys = keys;
 	}
 	
-	public void getTranslatedRange(String[] words, StringBuffer sb, int i, String tableName, String columnName, Query_object qObj){
-		int key = this.dataBaseKeys.getSingleTableKeys(tableName).getSingleColumn(columnName).getDataKey();
-		int domainBit = this.dataBaseKeys.getSingleTableKeys(tableName).getSingleColumn(columnName)
-				.getDomainBit();
-		int rangeBit = this.dataBaseKeys.getSingleTableKeys(tableName).getSingleColumn(columnName)
-				.getRangeBit();
-		
-		String str = words[i+1].replaceAll("^\"|\"$", "");
-		BigInteger strValue = null;
-		if (words[i].equals("<") || words[i].equals("<=")) {
-			strValue = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str), key, domainBit, rangeBit);
-			AttributeRange ar = new AttributeRange(tableName, columnName, strValue, words[i]);
-			qObj.addRangeColumn(ar);
-			sb.append(words[i-1] + " < "  + strValue.toString() + " ");
-		}
-		else if (words[i].equals(">") || words[i].equals(">=")) {
-			strValue = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str).add(BigInteger.ONE)
-					, key, domainBit, rangeBit);
-			AttributeRange ar = new AttributeRange(tableName, columnName, strValue, words[i]);
-			qObj.addRangeColumn(ar);
-			sb.append(words[i-1] + " > " + strValue.toString() + " ");
-		}
-		else if(words[i].equals("=")) {
-			BigInteger upper = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str).add(BigInteger.ONE)
-					, key, domainBit, rangeBit);
-			BigInteger lower = ope.simple_OPE_encrypt(HelperFunctions.StringToNumber(str), 
-					key, domainBit, rangeBit);
-			// a > low && a < high
-			AttributeRange ar1 = new AttributeRange(tableName, columnName, lower, ">");
-			AttributeRange ar2 = new AttributeRange(tableName, columnName, upper, "<");
-			sb.append("(" + words[i-1] + " < " + ar2.toString() + " AND " + words[i-1] + " > " + ar1.toString() );
-		}
-		else{ // not equal
-			
-		}
+	public static void main(String args[]) {
+		OPE ope = new OPE();
+		KeyStructure keys = KeyReader.readKey();
+		Query_parser parser = new Query_parser(keys, ope);
+		Query_object qo = parser.parseQuery("SELECT * FROM EMPLOYEE WHERE emp_no = 10 and first_name > \"ABC\"");
+		System.out.println(qo.translatedQuery);
 	}
+	
 }
 
 class Query_object{
