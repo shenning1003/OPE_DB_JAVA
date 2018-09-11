@@ -2,6 +2,7 @@ package OPE_DB;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -57,5 +58,75 @@ public class CompletenessValidator {
 		}
 		return decryptedValue;
 	}
+	
+	public static void main(String args[]) {
+		
+	}
 
+}
+
+class Node
+{
+	public String data;
+	public Node leftNode;
+	public Node rightNode;
+	
+	public Node(String data) {
+		this.data = data;
+	}
+	
+	public void showNode() {
+		System.out.println(this.data);
+	}
+}
+
+class Stack
+{
+	private String[] s;
+	private int top, max;
+	
+	public Stack(int max) {
+		this.max = max;
+		this.s = new String[max];
+		this.top = 0;
+	}
+	
+	public void push(String data) {
+		s[++top] = data;
+	}
+	
+	public String push() {
+		return s[top--];
+	}
+	
+	public boolean isEmpty() {
+		return top == 0;
+	}
+}
+
+class Tree
+{
+	private Node root;
+	
+	public Tree() {
+		root = null;
+	}
+	
+	private void postOrder(Node currentRoot) {
+		if(currentRoot != null) {
+			postOrder(currentRoot.leftNode);
+			postOrder(currentRoot.rightNode);
+			currentRoot.showNode();
+		}
+	}
+	
+	public void insert(String input) {
+		String[] split = input.split(" ");
+		Stack history = new Stack(split.length);
+		int whereIndex = Arrays.asList(split).indexOf("WHERE");
+		for (int i = whereIndex +1 ; i < split.length; i++) {
+			
+		}
+		
+	}
 }
