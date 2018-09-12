@@ -272,4 +272,44 @@ class Tree
 		}
 		this.root = stack.pop();
 	}
+	
+	public boolean validate(int num, Node currentNode){
+		if (currentNode != null){
+			boolean leftAnswer = validate(num, currentNode.leftNode);
+			boolean rightAnswer = validate(num, currentNode.rightNode);
+			switch(currentNode.data){
+			case "<":
+			case "<=":
+				if (num < Integer.parseInt(currentNode.rightNode.data)){
+					return true;
+				}else{
+					return false;
+				}
+			case ">":
+			case ">=":
+				if (num > Integer.parseInt(currentNode.rightNode.data)){
+					return true;
+				}else{
+					return false;
+				}
+			case "=":
+				if(num == Integer.parseInt(currentNode.rightNode.data)){
+					return true;
+				}else{
+					return false;
+				}
+			case "AND":
+				return 	leftAnswer && rightAnswer;
+			case "OR":
+				return leftAnswer || rightAnswer;
+			default:
+				return false;
+			}
+		}
+		else{
+			System.out.println("Error evaluate expression tree");
+			return false;
+		}
+			
+	}
 }
