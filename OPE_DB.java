@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -47,6 +48,27 @@ public class OPE_DB {
 	public void EncryptDB() {
 		try {
 			EncryptSalaryTable();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void querySalary(String sql) {
+		Query_object qo = sqlParser.parseQuery(sql);
+		String translatedSql = qo.getTranslatedQuery();
+		ArrayList<SalaryCipher> scList= new ArrayList<SalaryCipher>();
+		try {
+			OPE_stmt = OPE_conn.createStatement();
+			ResultSet rs = OPE_stmt.executeQuery(translatedSql);
+			while(rs.next()) {
+				String emp_no = rs.getString("emp_no");
+				String salary = rs.getString("salary");
+				String from_date = rs.getString("from_date");
+				String to_date = rs.getString("to_date");
+				SalaryCipher sc = new SalaryCipher(emp_no, salary, from_date, to_date);
+				scList.add(sc);
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

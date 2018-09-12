@@ -60,9 +60,99 @@ public class CompletenessValidator {
 	}
 	
 	public static void main(String args[]) {
-		
+		String input = "A > B OR C < D";
+		Conversion c = new Conversion(input.split(" "));
+		System.out.println(c.inToPost());
 	}
 
+}
+
+class Conversion
+{
+    private Stack s;
+    private String input[];
+    private String output = "";
+ 
+    public Conversion(String str[])
+    {
+        input = str;
+        s = new Stack(str.length);
+    }
+ 
+    public String inToPost()
+    {
+        for (int i = 0; i < input.length; i++)
+        {
+            String token = input[i];
+            switch (token)
+            {
+                case "AND":
+                case "OR":
+                    gotOperator(token, 1);
+                    break;
+                case "<":
+                case "<=":
+                case ">":
+                case ">=":
+                case "=":
+                case "<>":
+                	gotOperator(token, 2);
+                	break;
+                case "(":
+                    s.push(token);
+                    break;
+                case ")":
+                    gotParenthesis();
+                    break;
+                default:
+                    output = output + " " + token;
+            }
+        }
+        while (!s.isEmpty())
+            output = output + " " + s.pop();
+        return output;
+    }
+ 
+    private void gotOperator(String token, int prec1)
+    {
+        while (!s.isEmpty())
+        {
+            String opTop = s.pop();
+            if (opTop.equals("("))
+            {
+                s.push(opTop);
+                break;
+            } else
+            {
+                int prec2;
+                if (opTop.equals("AND") || opTop.equals("OR"))
+                    prec2 = 1;
+                else
+                    prec2 = 2;
+                if (prec2 < prec1)
+                {
+                    s.push(opTop);
+                    break;
+                } else {
+                    output = output + " " + opTop;
+                }
+
+            }
+        }
+        s.push(token);
+    }
+ 
+    private void gotParenthesis()
+    {
+        while (!s.isEmpty())
+        {
+            String ch = s.pop();
+            if (ch.equals("("))
+                break;
+            else
+                output = output + " " + ch;
+        }
+    }
 }
 
 class Node
@@ -95,7 +185,7 @@ class Stack
 		s[++top] = data;
 	}
 	
-	public String push() {
+	public String pop() {
 		return s[top--];
 	}
 	
@@ -121,11 +211,18 @@ class Tree
 	}
 	
 	public void insert(String input) {
-		String[] split = input.split(" ");
-		Stack history = new Stack(split.length);
-		int whereIndex = Arrays.asList(split).indexOf("WHERE");
-		for (int i = whereIndex +1 ; i < split.length; i++) {
-			
+		Node newNode;
+		
+		int whereIndex = input.indexOf("WHERE");
+		String subString = input.substring(whereIndex+5);
+		String[] split = subString.split(" ");
+		Conversion c = new Conversion(split);
+		String postOrder = c.inToPost();
+		
+		int index = 0;
+		String symbol = split[0];
+		while (true) {
+			if(symbol.equals(anObject))
 		}
 		
 	}
