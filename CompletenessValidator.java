@@ -60,9 +60,13 @@ public class CompletenessValidator {
 	}
 	
 	public static void main(String args[]) {
-		String input = "A > B OR C < D";
-		Conversion c = new Conversion(input.split(" "));
+		String input = "SELECT * FROM TABLE WHERE A > 20 OR ( C < 10 AND B >= 6 )";
+		String test2 = "A > 20 OR ( C < 10 AND B >= 6 )";
+		Conversion c = new Conversion(test2.split(" "));
 		System.out.println(c.inToPost());
+		Tree t = new Tree();
+		t.insert(input);
+		t.postOrder(t.getRoot());
 	}
 
 }
@@ -166,7 +170,7 @@ class Node
 	}
 	
 	public void showNode() {
-		System.out.println(this.data);
+		System.out.print(this.data);
 	}
 }
 
@@ -194,6 +198,29 @@ class Stack
 	}
 }
 
+class NodeStack{
+	private Node[] s;
+	private int top, max;
+	
+	public NodeStack(int max) {
+		this.max = max;
+		this.s = new Node[max];
+		this.top = 0;
+	}
+	
+	public void push(Node node) {
+		s[++top] = node;
+	}
+	
+	public Node pop() {
+		return s[top--];
+	}
+	
+	public boolean isEmpty() {
+		return top == 0;
+	}
+}
+
 class Tree
 {
 	private Node root;
@@ -202,7 +229,11 @@ class Tree
 		root = null;
 	}
 	
-	private void postOrder(Node currentRoot) {
+	public Node getRoot(){
+		return this.root;
+	}
+	
+	public void postOrder(Node currentRoot) {
 		if(currentRoot != null) {
 			postOrder(currentRoot.leftNode);
 			postOrder(currentRoot.rightNode);
@@ -212,18 +243,33 @@ class Tree
 	
 	public void insert(String input) {
 		Node newNode;
-		
+		NodeStack stack = new NodeStack(input.length());
 		int whereIndex = input.indexOf("WHERE");
 		String subString = input.substring(whereIndex+5);
 		String[] split = subString.split(" ");
 		Conversion c = new Conversion(split);
 		String postOrder = c.inToPost();
-		
+		//System.out.println(postOrder); // test here
+		split = postOrder.split(" ");
 		int index = 0;
 		String symbol = split[0];
-		while (true) {
-			if(symbol.equals(anObject))
+		while (index < split.length) {
+			symbol = split[index];
+			if(symbol.equals("<")||symbol.equals("<=")||symbol.equals("=")||symbol.equals(">")||symbol.equals(">=")
+					|| symbol.equals("<>") || symbol.equals("AND") || symbol.equals("OR")){
+				Node right = stack.pop();
+				Node left = stack.pop();
+				newNode = new Node(symbol);
+				newNode.leftNode = left;
+				newNode.rightNode = right;
+				stack.push(newNode);
+			}
+			else{
+				newNode = new Node(symbol);
+				stack.push(newNode);
+			}
+			index++;
 		}
-		
+		this.root = stack.pop();
 	}
 }
