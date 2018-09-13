@@ -50,6 +50,7 @@ public class Query_parser {
 		query = sb.toString();
 		sb = new StringBuffer();  // re-init here to build translated query
 		qObj.setOriginalQuery(query);
+		qObj.setValidationQuery(query);
 		String[] words = query.trim().split(" ");
 		switch(words[0]) {
 		case "UPDATE":
@@ -217,6 +218,7 @@ class Query_object{
 	HashMap<String, String> tableAlias = new HashMap<String, String>(); 
 	String originalQuery;
 	String translatedQuery;
+	String validationQuery;
 	boolean isRangeQuery;
 	boolean isJoinQuery;
 	ArrayList<AttributeRange> rangeQueryAttributes = new ArrayList<AttributeRange>();
@@ -258,6 +260,13 @@ class Query_object{
 		return this.rangeQueryAttributes;
 	}
 	
+	public void setValidationQuery(String query){
+		this.validationQuery = query;
+	}
+	
+	public String getValidationQuery(){
+		return this.validationQuery;
+	}
 	
 }
 
@@ -267,23 +276,14 @@ class Query_object{
 class AttributeRange{
 	String table;
 	String attribute;
-	BigInteger lower;
-	BigInteger upper;
+	BigInteger boundary;
 	String symbol;
 	// if one bounday value is passed, which means it is a single select
 	public AttributeRange(String table, String attribute, BigInteger value, String comparision) {
 		this.table = table;
 		this.attribute = attribute;
-		this.lower = this.upper = value;
+		this.boundary = value;
 		this.symbol = comparision; 
 	}
 	
-	// for range query
-	public AttributeRange(String table, String attribute, BigInteger lower, BigInteger upper, String comparision) {
-		this.table = table;
-		this.attribute = attribute;
-		this.lower = lower;
-		this.upper = upper;
-		this.symbol = comparision;
-	}
 }

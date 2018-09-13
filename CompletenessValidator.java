@@ -16,23 +16,33 @@ public class CompletenessValidator {
 		this.keys = keys;
 	}
 	
-	public ArrayList<BigInteger> checkCompleteness(Query_object qObj) {
-		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
+	public ArrayList<Integer> checkCompleteness(Query_object qObj) {
+		ArrayList<Integer> indexes= new ArrayList<Integer>();
+		String validationQuery = qObj.getTranslatedQuery();
+		int maxIndex = 0;
 		for( AttributeRange ar : qObj.getRangeColumn()){
 			String tableName = ar.table;
 			String attributeName = ar.attribute;
 			int numOfFake = keys.getSingleTableKeys(tableName).get_fkNum();
+			maxIndex = maxIndex < numOfFake ? maxIndex : numOfFake;
 			int key = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeKey();
 			int domainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getDomainBit();
 			int rangeBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getRangeBit();
-			if (ar.lower.equals(ar.upper)){
-				getCorrectIndex(ar.lower, key, domainBit, rangeBit, ar.symbol);
-			}
-			else{
-				
-			}
+
+			BigInteger indexValue = getCorrectIndex(ar.boundary, key, domainBit, rangeBit, ar.symbol);
+			validationQuery.replaceAll(attributeName+ " " + ar.symbol + " " + ar.boundary.toString(), 
+					attributeName+ " " + ar.symbol + " " + indexValue.toString());
 			
  		}
+		Tree t = new Tree();
+		t.insert(validationQuery);
+		for (int i = 1; i < maxIndex; i ++){
+			if (t.validate(i, t.getRoot())){
+				indexes.add(i);
+			}
+		}
+		String returnAttribute = qObj.returnAttributes.get(0);
+		if(returnAttribute.contains(s))
 		return result;
 	}
 	
