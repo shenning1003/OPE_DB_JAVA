@@ -67,6 +67,10 @@ public class CompletenessValidator {
 		Tree t = new Tree();
 		t.insert(input);
 		t.postOrder(t.getRoot());
+		for (int i = 0; i < 50; i++) {
+			if(t.validate(i, t.getRoot()))
+				System.out.println(i);
+		}
 	}
 
 }
@@ -279,15 +283,25 @@ class Tree
 			boolean rightAnswer = validate(num, currentNode.rightNode);
 			switch(currentNode.data){
 			case "<":
-			case "<=":
 				if (num < Integer.parseInt(currentNode.rightNode.data)){
 					return true;
 				}else{
 					return false;
 				}
+			case "<=":
+				if (num <= Integer.parseInt(currentNode.rightNode.data)){
+					return true;
+				}else{
+					return false;
+				}
 			case ">":
-			case ">=":
 				if (num > Integer.parseInt(currentNode.rightNode.data)){
+					return true;
+				}else{
+					return false;
+				}
+			case ">=":
+				if (num >= Integer.parseInt(currentNode.rightNode.data)){
 					return true;
 				}else{
 					return false;
@@ -307,7 +321,7 @@ class Tree
 			}
 		}
 		else{
-			System.out.println("Error evaluate expression tree");
+			//System.out.println("Error evaluate expression tree");
 			return false;
 		}
 			
