@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 
 public class CompletenessValidator {
 	OPE ope;
@@ -16,7 +17,8 @@ public class CompletenessValidator {
 		this.keys = keys;
 	}
 	
-	public ArrayList<Integer> checkCompleteness(Query_object qObj) {
+	public ArrayList<BigInteger> checkCompleteness(Query_object qObj, String columnName) {
+		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
 		ArrayList<Integer> indexes= new ArrayList<Integer>();
 		String validationQuery = qObj.getTranslatedQuery();
 		int maxIndex = 0;
@@ -41,8 +43,27 @@ public class CompletenessValidator {
 				indexes.add(i);
 			}
 		}
-		String returnAttribute = qObj.returnAttributes.get(0);
-		if(returnAttribute.contains(s))
+		String tableName="";
+		String attributeName="";
+		int key;
+		int domainBit;
+		int rangeBit;
+		if(columnName.contains(".")) {
+			String[] words = columnName.split(".");
+			tableName = words[0];
+			attributeName = words[1];
+		}else {
+			Map.Entry<String, String> entry = qObj.tableAlias.entrySet().iterator().next();
+			tableName = entry.getValue();
+			attributeName = columnName;
+		}
+		key = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeKey();
+		domainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getDomainBit();
+		rangeBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getRangeBit();
+		for (int i : indexes) {
+			BigInteger fakeValue = ope.OPE_encrypt(i, key, domainBit, rangeBit);
+			result.add(fakeValue);
+		}
 		return result;
 	}
 	

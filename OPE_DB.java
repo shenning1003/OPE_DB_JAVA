@@ -24,6 +24,7 @@ public class OPE_DB {
 	Query_parser sqlParser;
 	OPE ope;
 	KeyStructure keyFile;
+	CompletenessValidator cv;
 	private Connection OPE_conn;
 	private Statement OPE_stmt;
 
@@ -31,6 +32,7 @@ public class OPE_DB {
 		keyFile = KeyReader.readKey();
 		ope = new OPE();
 		this.sqlParser = new Query_parser(keyFile, ope);
+		cv = new CompletenessValidator(keyFile);
 			
 		try {
 			// register JDBC driver
@@ -55,8 +57,8 @@ public class OPE_DB {
 	}
 	
 	public void querySalary(String sql) {
-		Query_object qo = sqlParser.parseQuery(sql);
-		String translatedSql = qo.getTranslatedQuery();
+		Query_object qObj = sqlParser.parseQuery(sql);
+		String translatedSql = qObj.getTranslatedQuery();
 		ArrayList<SalaryCipher> scList= new ArrayList<SalaryCipher>();
 		try {
 			OPE_stmt = OPE_conn.createStatement();
@@ -73,6 +75,8 @@ public class OPE_DB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		ArrayList<BigInteger> fakeValues = cv.checkCompleteness(qObj, qObj.returnAttributes.get(0));
+		
 	}
 
 	/*
