@@ -28,7 +28,7 @@ public class OPE_DB {
 	private Connection OPE_conn;
 	private Statement OPE_stmt;
 
-	public OPE_DB(DB_connection conn) {
+	public OPE_DB() {
 		keyFile = KeyReader.readKey();
 		ope = new OPE();
 		this.sqlParser = new Query_parser(keyFile, ope);
@@ -56,7 +56,7 @@ public class OPE_DB {
 		}
 	}
 	
-	public void querySalary(String sql) {
+	public boolean querySalary(String sql) {
 		Query_object qObj = sqlParser.parseQuery(sql);
 		String translatedSql = qObj.getTranslatedQuery();
 		ArrayList<SalaryCipher> scList= new ArrayList<SalaryCipher>();
@@ -64,10 +64,10 @@ public class OPE_DB {
 			OPE_stmt = OPE_conn.createStatement();
 			ResultSet rs = OPE_stmt.executeQuery(translatedSql);
 			while(rs.next()) {
-				String emp_no = rs.getString("emp_no");
-				String salary = rs.getString("salary");
-				String from_date = rs.getString("from_date");
-				String to_date = rs.getString("to_date");
+				BigInteger emp_no = new BigInteger(rs.getString("emp_no"));
+				BigInteger salary = new BigInteger(rs.getString("salary"));
+				BigInteger from_date = new BigInteger(rs.getString("from_date"));
+				BigInteger to_date = new BigInteger(rs.getString("to_date"));
 				SalaryCipher sc = new SalaryCipher(emp_no, salary, from_date, to_date);
 				scList.add(sc);
 			}
@@ -75,7 +75,68 @@ public class OPE_DB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ArrayList<BigInteger> fakeValues = cv.checkCompleteness(qObj, qObj.returnAttributes.get(0));
+		ArrayList<BigInteger> fakeValues = cv.getExceptedFakeTuples(qObj, qObj.returnAttributes.get(0));
+		ArrayList<BigInteger> targetSet = new ArrayList<BigInteger>();
+		if (qObj.returnAttributes.get(0).equals("EMP_NO")){
+			for(SalaryCipher sc : scList){
+				targetSet.add(sc.getEmp_no());
+			}
+		}
+		else if (qObj.returnAttributes.get(0).equals("SALARY")){
+			for (SalaryCipher sc : scList){
+				targetSet.add(sc.getSalary());
+			}
+		}
+		else if (qObj.returnAttributes.get(0).equals("FROM_DATE")){
+			for (SalaryCipher sc : scList){
+				targetSet.add(sc.getFrom_date());
+			}
+		}
+		else{
+			for (SalaryCipher sc :scList){
+				targetSet.add(sc.getTo_date());
+			}
+		}
+		return cv.checkCompleteness(fakeValues, targetSet);
+	}
+	
+	public int createOPE_DB(){
+		int result = 0;
+		String sql = "CREATE DATABASE IF NOT EXISTS OPE_EMPLOYEE";
+		String empTable = "CREATE TABLE IF NOT EXISTS OPE_EMPLOYEE (emp_id VARCHAR(255) NOT NULL, "
+				+ "birth_date VARCHAR(255), "
+				+ "first_name VARCHAR(255),"
+				+ "last_name VARCHAR(255),"
+				+ "gender VARCHAR(255),"
+				+ "hire_date VARCHAR(255))";
+		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id VARCHAR(255) NOT NULL)"
+				+ "salary VARCHAR(255),"
+				+ "from_date VARCHAR(255),"
+				+ "to_date VARCHAR(255)";
+		try {
+			Statement stmt = OPE_conn.createStatement();
+			result = stmt.executeUpdate(sql);
+			result = result ==1 && stmt.executeUpdate(empTable)==1 ? 1 : 0;
+			result = result ==1 && stmt.executeUpdate(salaryTable)==1 ? 1 : 0;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return result;
+	}
+	
+	public void randomDelete(int number){
+		String deletion = "DELETE FROM ope_salary ORDER BY RAND() LIMIT ?";
+		try {
+			PreparedStatement stmt = OPE_conn.prepareStatement(deletion);
+			stmt.setInt(1, number);
+			stmt.executeUpdate();
+			OPE_conn.commit();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 

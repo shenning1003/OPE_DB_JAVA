@@ -16,8 +16,10 @@ public class CompletenessValidator {
 		ope = new OPE();
 		this.keys = keys;
 	}
-	
-	public ArrayList<BigInteger> checkCompleteness(Query_object qObj, String columnName) {
+	/*
+	 * generate all the fake values on a column
+	 */
+	public ArrayList<BigInteger> getExceptedFakeTuples(Query_object qObj, String columnName) {
 		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
 		ArrayList<Integer> indexes= new ArrayList<Integer>();
 		String validationQuery = qObj.getTranslatedQuery();
@@ -65,6 +67,17 @@ public class CompletenessValidator {
 			result.add(fakeValue);
 		}
 		return result;
+	}
+	
+	
+	public boolean checkCompleteness(ArrayList<BigInteger> fakeTuples, ArrayList<BigInteger> targetSet){
+		boolean okay = true;
+		for (BigInteger fake : fakeTuples){
+			if (!targetSet.contains(fake)){
+				okay = false;
+			}
+		}
+		return okay;
 	}
 	
 	private BigInteger getCorrectIndex(BigInteger cipher, int key, int domainBit, int rangeBit, String comparator) {

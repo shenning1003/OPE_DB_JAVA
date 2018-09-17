@@ -1,5 +1,6 @@
 package OPE_DB;
 
+import java.math.BigInteger;
 import java.sql.Date;
 
 /*
@@ -44,27 +45,27 @@ class Employee{
 }
 
 class SalaryCipher{
-	private String emp_no;
-	private String salary;
-	private String from_date;
-	private String to_date;
+	private BigInteger emp_no;
+	private BigInteger salary;
+	private BigInteger from_date;
+	private BigInteger to_date;
 	
-	public SalaryCipher(String empno, String salary, String from_date, String to_date) {
+	public SalaryCipher(BigInteger empno, BigInteger salary, BigInteger from_date, BigInteger to_date) {
 		this.emp_no = empno;
 		this.salary = salary;
 		this.from_date = from_date;
 		this.to_date = to_date;
 	}
-	public String getEmp_no() {
+	public BigInteger getEmp_no() {
 		return this.emp_no;
 	}
-	public String getSalary() {
+	public BigInteger getSalary() {
 		return this.salary;
 	}
-	public String getFrom_date() {
+	public BigInteger getFrom_date() {
 		return this.from_date;
 	}
-	public String getTo_date() {
+	public BigInteger getTo_date() {
 		return this.to_date;
 	}
 }
