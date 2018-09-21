@@ -15,11 +15,12 @@ import java.util.ArrayList;
  * fake tuples from the encrypted database
  */
 public class OPE_DB {
+	static int localPort = 3367;
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Drive";
-	static final String OPE_DB_URL = "";
+	static final String OPE_DB_URL = "jdbc:mysql://localhost:";
 
-	static final String OPE_user = "";
-	static final String OPE_password = "";
+	static final String OPE_user = "msandbox";
+	static final String OPE_password = "mysql";
 
 	Query_parser sqlParser;
 	OPE ope;
@@ -102,7 +103,7 @@ public class OPE_DB {
 	
 	public int createOPE_DB(){
 		int result = 0;
-		String sql = "CREATE DATABASE IF NOT EXISTS OPE_EMPLOYEE";
+		String sql = "CREATE DATABASE IF NOT EXISTS OPE_EMPLOYEE_DB";
 		String empTable = "CREATE TABLE IF NOT EXISTS OPE_EMPLOYEE (emp_id VARCHAR(255) NOT NULL, "
 				+ "birth_date VARCHAR(255), "
 				+ "first_name VARCHAR(255),"

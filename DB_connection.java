@@ -4,16 +4,20 @@ import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 
+import com.jcraft.jsch.*;
+
 /*
  * Connect with the original DB; 
  * Most likely only used when initialize the encrypted DB
  */
 public class DB_connection {
+
+	static int localPort = 3367;
 	static final String JDBC_DRIVE = "com.mysql.jdbc.Drive";
-	static final String DB_URL = "jdbc:mysql://localhost/"; // DB name here
+	static final String DB_URL = "jdbc:mysql://localhost:"; // DB name here
 	
-	static final String user = "";
-	static final String password = "";
+	static final String user = "msandbox";
+	static final String password = "mysql";
 	
 
 	private Connection conn;
@@ -23,7 +27,7 @@ public class DB_connection {
 		try {
 			// register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(DB_URL, user, password);
+			conn = DriverManager.getConnection(DB_URL+localPort, user, password);
 			stmt = conn.createStatement();
 		}catch(Exception e) {
 			e.printStackTrace();
