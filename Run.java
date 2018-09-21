@@ -38,13 +38,18 @@ public class Run {
 		
 		KeyStructure keys = KeyReader.readKey();
 		DB_connection db = new DB_connection();
+		OPE_DB ope_db = new OPE_DB(db.getConnection(), keys);
 		
 		String testSQL = "SELECT * FROM employees.employees limit 10";
 		PreparedStatement stm;
 		ArrayList<Employee> employees = new ArrayList<Employee>();
 		try {
+			// test SSL JDBC connection
 			stm = db.getConnection().prepareStatement(testSQL);	
 			employees = db.QueryEmployee(stm);
+			// test create OPE_db
+			ope_db.createOPE_DB();
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

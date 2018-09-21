@@ -28,17 +28,19 @@ public class OPE_DB {
 	CompletenessValidator cv;
 	private Connection OPE_conn;
 	private Statement OPE_stmt;
+	private Connection DB_conn;
 
-	public OPE_DB() {
-		keyFile = KeyReader.readKey();
+	public OPE_DB(Connection db_conn, KeyStructure keyFile) {
+		this.keyFile = keyFile;
 		ope = new OPE();
+		this.DB_conn = db_conn;
 		this.sqlParser = new Query_parser(keyFile, ope);
 		cv = new CompletenessValidator(keyFile);
 			
 		try {
 			// register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
-			OPE_conn = DriverManager.getConnection(OPE_DB_URL, OPE_user, OPE_password);
+			OPE_conn = DriverManager.getConnection(OPE_DB_URL+localPort, OPE_user, OPE_password);
 			OPE_stmt = OPE_conn.createStatement();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -103,21 +105,23 @@ public class OPE_DB {
 	
 	public int createOPE_DB(){
 		int result = 0;
-		String sql = "CREATE DATABASE IF NOT EXISTS OPE_EMPLOYEE_DB";
+		String sql = "CREATE DATABASE IF NOT EXISTS OPE_EMPLOYEE_DB;";
 		String empTable = "CREATE TABLE IF NOT EXISTS OPE_EMPLOYEE (emp_id VARCHAR(255) NOT NULL, "
 				+ "birth_date VARCHAR(255), "
 				+ "first_name VARCHAR(255),"
 				+ "last_name VARCHAR(255),"
 				+ "gender VARCHAR(255),"
-				+ "hire_date VARCHAR(255))";
-		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id VARCHAR(255) NOT NULL)"
+				+ "hire_date VARCHAR(255));";
+		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id VARCHAR(255) NOT NULL,"
 				+ "salary VARCHAR(255),"
 				+ "from_date VARCHAR(255),"
-				+ "to_date VARCHAR(255)";
+				+ "to_date VARCHAR(255));";
 		try {
 			Statement stmt = OPE_conn.createStatement();
 			result = stmt.executeUpdate(sql);
+			stmt.execute("USE OPE_EMPLOYEE_DB;");
 			result = result ==1 && stmt.executeUpdate(empTable)==1 ? 1 : 0;
+			System.out.println(result);
 			result = result ==1 && stmt.executeUpdate(salaryTable)==1 ? 1 : 0;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
