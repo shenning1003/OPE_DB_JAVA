@@ -25,11 +25,11 @@ public class KeyReader {
 			TableKey tableKeys = null;
 			while((line = bufferedReader.readLine()) != null) {
 				String[] words = line.toUpperCase().split(" ");
-				if(words[0].equals("TABLE") && words.length == 3) {
+				if(words[0].equals("TABLE") && words.length == 4) {
 					if(tableKeys != null)
 						keys.addTableKey(tableKeys);
 					
-					tableKeys = new TableKey(words[1], Integer.parseInt(words[2]));
+					tableKeys = new TableKey(words[1], Integer.parseInt(words[2]), Integer.parseInt(words[3]));
 					tableKeys.setTableName(words[1]);
 					
 				}else if(words[0].equals("COLUMN") && words.length == 6) {
@@ -69,7 +69,7 @@ class KeyStructure{
 	}
 	public TableKey getSingleTableKeys(String tableName) {
 		for(TableKey tkey : tablesKey) {
-			if (tkey.getTableName().equals(tableName))
+			if (tkey.getTableName().equals(tableName.toUpperCase()))
 				return tkey;
 		}
 		return null;
@@ -79,11 +79,20 @@ class KeyStructure{
 class TableKey{
 	private int fkNum;
 	private String tableName;
+	private int tableDomainBit;
 	private ArrayList<ColumnKey> columnsKey; 
 	
-	public TableKey(String tableName, int fkNum) {
+	public TableKey(String tableName, int fkNum, int tDomainBit) {
 		this.fkNum = fkNum;
+		this.tableDomainBit = tDomainBit;
 		columnsKey = new ArrayList<ColumnKey>();
+	}
+	
+	public void setTableDomainBit(int bit) {	
+		this.tableDomainBit = bit;
+	}
+	public int getTableDomainBit() {
+		return this.tableDomainBit;
 	}
 	
 	public String getTableName() {
@@ -103,7 +112,7 @@ class TableKey{
 	
 	public ColumnKey getSingleColumn(String columnName) {
 		for(ColumnKey c : columnsKey) {
-			if(c.getColumnName().equals(columnName))
+			if(c.getColumnName().equals(columnName.toUpperCase()))
 				return c;
 		}
 		return null;

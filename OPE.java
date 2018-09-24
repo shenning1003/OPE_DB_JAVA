@@ -75,7 +75,7 @@ public class OPE {
 			// not totally random because hard to generate a random number in BigInteger.
 			// So only get randomize in the range of Long type
 			// if (upper - lower) > long.MAX_VALUE
-			if(upper.subtract(lower).compareTo(BigInteger.valueOf(Long.MAX_VALUE)) == 1) {
+			if(upper.subtract(lower).compareTo(BigInteger.valueOf(Long.MAX_VALUE)) >= 0 ) {
 				return lower.add(BigInteger.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)));
 			}else {
 				return lower.add(BigInteger.valueOf(ThreadLocalRandom.current().nextLong( upper.subtract(lower).longValue() )));

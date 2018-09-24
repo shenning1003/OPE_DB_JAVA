@@ -1,6 +1,7 @@
 package OPE_DB;
 
 import java.math.BigInteger;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,10 +55,9 @@ public class HelperFunctions {
 	
 	
 	public static BigInteger DateToNumber(Date input){
-		String pattern = "yyyyMMdd";
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-		
-		return BigInteger.valueOf(Long.parseLong(simpleDateFormat.format(input)));
+		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");		
+		BigInteger result =  BigInteger.valueOf(Long.parseLong(dateFormat.format(input)));
+		return result;
 	}
 	
 	

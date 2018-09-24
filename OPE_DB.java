@@ -26,11 +26,11 @@ public class OPE_DB {
 	OPE ope;
 	KeyStructure keyFile;
 	CompletenessValidator cv;
+	DB_connection DB_conn;
 	private Connection OPE_conn;
 	private Statement OPE_stmt;
-	private Connection DB_conn;
 
-	public OPE_DB(Connection db_conn, KeyStructure keyFile) {
+	public OPE_DB(DB_connection db_conn, KeyStructure keyFile) {
 		this.keyFile = keyFile;
 		ope = new OPE();
 		this.DB_conn = db_conn;
@@ -103,26 +103,31 @@ public class OPE_DB {
 		return cv.checkCompleteness(fakeValues, targetSet);
 	}
 	
+	/*
+	 * create OPE version of database/tables
+	 * returns 0 is all good, negative number for errors
+	 */
+	
 	public int createOPE_DB(){
 		int result = 0;
 		String sql = "CREATE DATABASE IF NOT EXISTS OPE_EMPLOYEE_DB;";
 		String empTable = "CREATE TABLE IF NOT EXISTS OPE_EMPLOYEE (emp_id VARCHAR(255) NOT NULL, "
 				+ "birth_date VARCHAR(255), "
-				+ "first_name VARCHAR(255),"
-				+ "last_name VARCHAR(255),"
-				+ "gender VARCHAR(255),"
+				+ "first_name VARCHAR(255), "
+				+ "last_name VARCHAR(255), "
+				+ "gender VARCHAR(255), "
 				+ "hire_date VARCHAR(255));";
-		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id VARCHAR(255) NOT NULL,"
-				+ "salary VARCHAR(255),"
-				+ "from_date VARCHAR(255),"
+		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id VARCHAR(255) NOT NULL, "
+				+ "salary VARCHAR(255), "
+				+ "from_date VARCHAR(255), "
 				+ "to_date VARCHAR(255));";
 		try {
 			Statement stmt = OPE_conn.createStatement();
-			result = stmt.executeUpdate(sql);
+			result += stmt.executeUpdate(sql);
 			stmt.execute("USE OPE_EMPLOYEE_DB;");
-			result = result ==1 && stmt.executeUpdate(empTable)==1 ? 1 : 0;
-			System.out.println(result);
-			result = result ==1 && stmt.executeUpdate(salaryTable)==1 ? 1 : 0;
+			result += stmt.executeUpdate(empTable);
+			//stmt.executeUpdate(salaryTable);
+			result += stmt.executeUpdate(salaryTable);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -154,11 +159,10 @@ public class OPE_DB {
 		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
 		if (salaryTableKey == null)
 			return 0;
-		DB_connection db = new DB_connection();
 		ArrayList<Salary> salaries = new ArrayList<Salary>();
 		try {
-			PreparedStatement stm = db.getConnection().prepareStatement("SELECT * FROM SALARY");
-			salaries = db.QuerySalary(stm);
+			PreparedStatement stm = DB_conn.getConnection().prepareStatement("SELECT * FROM employees.salaries LIMIT 10");
+			salaries = DB_conn.QuerySalary(stm);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -166,7 +170,7 @@ public class OPE_DB {
 		if (salaries.size() == 0) {
 			return 0;
 		} else {
-			String sql = "INSERT INTO ope_salary VALUES (?, ?, ?, ?)";
+			String sql = "INSERT INTO OPE_EMPLOYEE_DB.OPE_SALARY VALUES (?, ?, ?, ?)";
 			try {
 				insertStatement = this.OPE_conn.prepareStatement(sql);
 				for (Salary s : salaries) {
@@ -184,7 +188,7 @@ public class OPE_DB {
 							fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit());
 					// from_to column
 					ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
-					BigInteger ope_toDate = ope.OPE_decrypt(HelperFunctions.DateToNumber(s.getToDate()),
+					BigInteger ope_toDate = ope.OPE_encrypt(HelperFunctions.DateToNumber(s.getToDate()),
 							toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit());
 					// create query
 					
@@ -193,7 +197,6 @@ public class OPE_DB {
 					insertStatement.setString(3, ope_fromDate.toString());
 					insertStatement.setString(4, ope_toDate.toString());
 					insertStatement.executeUpdate();
-					OPE_conn.commit();
 				}
 
 			} catch (SQLException e) {
@@ -220,7 +223,7 @@ public class OPE_DB {
 
 	}
 
-	public void InsertFakeTuple() throws IOException {
+	public void InsertFakeTuple(){
 		if (keyFile == null)
 			return;
 		if (keyFile.tablesKey.size() == 0)
@@ -236,30 +239,31 @@ public class OPE_DB {
 	
 	private void InsertSalaryTable() throws SQLException {
 		PreparedStatement insertStatement = null;
-		String sql = "INSERT INTO ope_salary VALUES (?,?,?,?)";
+		String sql = "INSERT INTO OPE_EMPLOYEE_DB.OPE_SALARY VALUES (?,?,?,?)";
 		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
 		int num = salaryTableKey.get_fkNum();
+		int fakeBit = salaryTableKey.getTableDomainBit();
 		while (num > 0) {
 			try {
 				insertStatement = OPE_conn.prepareStatement(sql);
 				BigInteger emp_no = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("emp_no").getFakeKey(),
-						salaryTableKey.getSingleColumn("emp_no").getDomainBit(), 
+						fakeBit, 
 						salaryTableKey.getSingleColumn("emp_no").getRangeBit());
 				BigInteger salary = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("salary").getFakeKey(),
-						salaryTableKey.getSingleColumn("salary").getDomainBit(), 
+						fakeBit, 
 						salaryTableKey.getSingleColumn("salary").getRangeBit());
 				BigInteger from_date = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("from_date").getFakeKey(),
-						salaryTableKey.getSingleColumn("from_date").getDomainBit(), 
+						fakeBit, 
 						salaryTableKey.getSingleColumn("from_date").getRangeBit());
-				BigInteger to_date = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("from_date").getFakeKey(),
-						salaryTableKey.getSingleColumn("from_date").getDomainBit(), 
-						salaryTableKey.getSingleColumn("from_date").getRangeBit());
+				BigInteger to_date = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("to_date").getFakeKey(),
+						fakeBit, 
+						salaryTableKey.getSingleColumn("to_date").getRangeBit());
 				insertStatement.setString(1, emp_no.toString());
 				insertStatement.setString(2, salary.toString());
 				insertStatement.setString(3, from_date.toString());
 				insertStatement.setString(4, to_date.toString());
 				insertStatement.executeUpdate();
-				OPE_conn.commit();
+				num --;
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
