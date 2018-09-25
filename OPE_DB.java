@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 
 /*
  * Should include the functions of: Enc/Dec database, query encrypted DB and verify completeness; inserting/removing 
@@ -59,7 +60,7 @@ public class OPE_DB {
 		}
 	}
 	
-	public boolean querySalary(String sql) {
+	public ArrayList<SalaryCipher> querySalary(String sql) {
 		Query_object qObj = sqlParser.parseQuery(sql);
 		String translatedSql = qObj.getTranslatedQuery();
 		ArrayList<SalaryCipher> scList= new ArrayList<SalaryCipher>();
@@ -78,6 +79,7 @@ public class OPE_DB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		ArrayList<BigInteger> fakeValues = cv.getExceptedFakeTuples(qObj, qObj.returnAttributes.get(0));
 		ArrayList<BigInteger> targetSet = new ArrayList<BigInteger>();
 		if (qObj.returnAttributes.get(0).equals("EMP_NO")){
@@ -100,7 +102,35 @@ public class OPE_DB {
 				targetSet.add(sc.getTo_date());
 			}
 		}
-		return cv.checkCompleteness(fakeValues, targetSet);
+		return scList;
+		//return cv.checkCompleteness(fakeValues, targetSet);
+	}
+	
+	public ArrayList<Salary> decryptSalary(ArrayList<SalaryCipher> scList){
+		ArrayList<Salary> salaries = new ArrayList<Salary>();
+		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
+		for(SalaryCipher sc : scList) {
+			//emp_no column
+			ColumnKey empIdKey = salaryTableKey.getSingleColumn("emp_no");
+			int emp_no = ope.OPE_decrypt(sc.getEmp_no(), empIdKey.getDataKey(),
+					empIdKey.getDomainBit(), empIdKey.getRangeBit()).intValue();
+			// salary column
+			ColumnKey salaryKey = salaryTableKey.getSingleColumn("salary");
+			int salary = ope.OPE_decrypt(sc.getSalary(), salaryKey.getDataKey(),
+					salaryKey.getDomainBit(), salaryKey.getRangeBit()).intValue();
+			// from_date column
+			ColumnKey fromDateKey = salaryTableKey.getSingleColumn("from_date");
+			Date fromDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(sc.getFrom_date(),
+					fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit()).longValue());
+			// to_date column
+			ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
+			Date toDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(sc.getTo_date(),
+					toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit()).longValue());
+			
+			Salary s = new Salary(emp_no, salary, fromDate, toDate);
+			salaries.add(s);
+		}
+		return salaries;   
 	}
 	
 	/*
@@ -186,7 +216,7 @@ public class OPE_DB {
 					ColumnKey fromDateKey = salaryTableKey.getSingleColumn("from_date");
 					BigInteger ope_fromDate = ope.OPE_encrypt(HelperFunctions.DateToNumber(s.getFromDate()),
 							fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit());
-					// from_to column
+					// to_date column
 					ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
 					BigInteger ope_toDate = ope.OPE_encrypt(HelperFunctions.DateToNumber(s.getToDate()),
 							toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit());

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import com.jcraft.jsch.*;
 
@@ -54,21 +55,16 @@ public class Run {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		// OPE_DB opeDB = new OPE_DB();
-		//
-		// opeDB.createOPE_DB();
-		// try {
-		// opeDB.InsertFakeTuple();
-		// for(int i = 0; i < 10; i ++){
-		// opeDB.randomDelete(500);
-		// opeDB.querySalary("SELECT * FROM ope_salary WHERE ");
-		// }
-		//
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		
+		Scanner scan = new Scanner(System.in);
+		String query = scan.nextLine();
+		while(!query.toUpperCase().equals("EXIT")) {
+			ArrayList<SalaryCipher>  scList = ope_db.querySalary(query);
+			ArrayList<Salary> salaries = ope_db.decryptSalary(scList); 
+			
+		}
+		
+		
 		session.disconnect();
 	}
 }

@@ -1,7 +1,7 @@
 package OPE_DB;
 
 import java.math.BigInteger;
-import java.sql.Date;
+import java.util.Date;
 
 /*
  * Define some database objects.
@@ -76,11 +76,11 @@ class Salary{
 	private Date from_date;
 	private Date to_date;
 
-	public Salary(int emp_no, int salary, Date from, Date to){
+	public Salary(int emp_no, int salary, Date fromDate, Date toDate){
 		this.emp_no = emp_no;
 		this.salary = salary;
-		this.from_date = from;
-		this.to_date = to;
+		this.from_date = fromDate;
+		this.to_date = toDate;
 	}
 
 	public int getEmp_no(){
