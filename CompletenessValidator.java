@@ -69,13 +69,44 @@ public class CompletenessValidator {
 		return result;
 	}
 	
-	
-	public boolean checkCompleteness(Query_object qObj, ArrayList<ArrayList<BigInteger>> queryResult){
+	/*
+	 * returns the missing fake tuples. 
+	 */
+	public ArrayList<ArrayList<BigInteger>> checkCompleteness(Query_object qObj, ArrayList<ArrayList<BigInteger>> queryResult){
 		ArrayList<ArrayList<BigInteger>> fakeTuples = new ArrayList<ArrayList<BigInteger>>();
-		
+		ArrayList<ArrayList<BigInteger>> missingTuples = new ArrayList<ArrayList<BigInteger>>();
 		for(int i = 0; i < qObj.returnAttributes.size(); i++) {
 			ArrayList<BigInteger> singleColumn = getExceptedFakeTuplesColumn(qObj, qObj.returnAttributes.get(i));
+			for (int j = 0; j < singleColumn.size(); j++){
+				if (fakeTuples.size() <= j){ // not inited
+					ArrayList<BigInteger> tuple = new ArrayList<BigInteger>();
+					tuple.add(singleColumn.get(j));
+					fakeTuples.add(tuple);
+				}
+				else{
+					fakeTuples.get(j).add(singleColumn.get(j));
+				}
+			}
 		}
+		
+		for(ArrayList<BigInteger> fakeTuple : fakeTuples){
+			boolean found = false;
+			for(ArrayList<BigInteger> tuple : queryResult){
+				boolean allSame = true;
+				for (int k = 0; k < tuple.size(); k++){
+					if (!fakeTuple.get(k).equals(tuple.get(k))){
+						allSame = false;
+					}
+				}
+				if (allSame)
+					found = true;
+			}
+			
+			if ()
+		}
+		
+		
+		return false;
 	}
 	
 	private BigInteger getCorrectIndex(BigInteger cipher, int key, int domainBit, int rangeBit, String comparator) {
