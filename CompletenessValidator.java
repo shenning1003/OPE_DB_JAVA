@@ -19,7 +19,7 @@ public class CompletenessValidator {
 	/*
 	 * generate all the fake values on a column
 	 */
-	public ArrayList<BigInteger> getExceptedFakeTuples(Query_object qObj, String columnName) {
+	public ArrayList<BigInteger> getExceptedFakeTuplesColumn(Query_object qObj, String columnName) {
 		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
 		ArrayList<Integer> indexes= new ArrayList<Integer>();
 		String validationQuery = qObj.getTranslatedQuery();
@@ -70,14 +70,12 @@ public class CompletenessValidator {
 	}
 	
 	
-	public boolean checkCompleteness(ArrayList<BigInteger> fakeTuples, ArrayList<BigInteger> targetSet){
-		boolean okay = true;
-		for (BigInteger fake : fakeTuples){
-			if (!targetSet.contains(fake)){
-				okay = false;
-			}
+	public boolean checkCompleteness(Query_object qObj, ArrayList<ArrayList<BigInteger>> queryResult){
+		ArrayList<ArrayList<BigInteger>> fakeTuples = new ArrayList<ArrayList<BigInteger>>();
+		
+		for(int i = 0; i < qObj.returnAttributes.size(); i++) {
+			ArrayList<BigInteger> singleColumn = getExceptedFakeTuplesColumn(qObj, qObj.returnAttributes.get(i));
 		}
-		return okay;
 	}
 	
 	private BigInteger getCorrectIndex(BigInteger cipher, int key, int domainBit, int rangeBit, String comparator) {

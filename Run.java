@@ -1,6 +1,7 @@
 package OPE_DB;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -36,31 +37,30 @@ public class Run {
 		}
 
 		KeyStructure keys = KeyReader.readKey();
+		OPE ope = new OPE();
+		Query_parser sqlParser = new Query_parser(keys, ope);
 		DB_connection db = new DB_connection();
 		OPE_DB ope_db = new OPE_DB(db, keys);
 
 		String testSQL = "SELECT * FROM employees.employees limit 10";
 		PreparedStatement stm;
-		ArrayList<Employee> employees = new ArrayList<Employee>();
-		try {
+		//ArrayList<Employee> employees = new ArrayList<Employee>();
+		if (args.length ==1 && args[0].equals("-i")) {
 			// test SSL JDBC connection
-			stm = db.getConnection().prepareStatement(testSQL);
-			employees = db.QueryEmployee(stm);
+			//stm = db.getConnection().prepareStatement(testSQL);
+			//employees = db.QueryEmployee(stm);
 			// test create OPE_db
 			ope_db.createOPE_DB();
 			ope_db.EncryptDB();
 			ope_db.InsertFakeTuple();
 
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		
 		Scanner scan = new Scanner(System.in);
 		String query = scan.nextLine();
 		while(!query.toUpperCase().equals("EXIT")) {
-			ArrayList<SalaryCipher>  scList = ope_db.querySalary(query);
-			ArrayList<Salary> salaries = ope_db.decryptSalary(scList); 
+			Query_object qObj = sqlParser.parseQuery(query);
+			ArrayList<ArrayList<BigInteger>>  queryResults = ope_db.querySalary(qObj);
+			ArrayList<Salary> salaries = ope_db.decryptSalary(scList, qObj); 
 			
 		}
 		

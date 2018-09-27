@@ -23,7 +23,6 @@ public class OPE_DB {
 	static final String OPE_user = "msandbox";
 	static final String OPE_password = "mysql";
 
-	Query_parser sqlParser;
 	OPE ope;
 	KeyStructure keyFile;
 	CompletenessValidator cv;
@@ -35,7 +34,6 @@ public class OPE_DB {
 		this.keyFile = keyFile;
 		ope = new OPE();
 		this.DB_conn = db_conn;
-		this.sqlParser = new Query_parser(keyFile, ope);
 		cv = new CompletenessValidator(keyFile);
 			
 		try {
@@ -60,10 +58,9 @@ public class OPE_DB {
 		}
 	}
 	
-	public ArrayList<SalaryCipher> querySalary(String sql) {
-		Query_object qObj = sqlParser.parseQuery(sql);
+	public ArrayList<ArrayList<BigInteger>> querySalary(Query_object qObj) {
 		String translatedSql = qObj.getTranslatedQuery();
-		ArrayList<SalaryCipher> scList= new ArrayList<SalaryCipher>();
+		ArrayList<ArrayList<BigInteger>> scList= new ArrayList<ArrayList<BigInteger>>();
 		try {
 			OPE_stmt = OPE_conn.createStatement();
 			ResultSet rs = OPE_stmt.executeQuery(translatedSql);
@@ -72,62 +69,87 @@ public class OPE_DB {
 				BigInteger salary = new BigInteger(rs.getString("salary"));
 				BigInteger from_date = new BigInteger(rs.getString("from_date"));
 				BigInteger to_date = new BigInteger(rs.getString("to_date"));
-				SalaryCipher sc = new SalaryCipher(emp_no, salary, from_date, to_date);
-				scList.add(sc);
+				ArrayList<BigInteger> encryptedSalary = new ArrayList<BigInteger>();
+				encryptedSalary.add(emp_no);
+				encryptedSalary.add(salary);
+				encryptedSalary.add(from_date);
+				encryptedSalary.add(to_date);
+				scList.add(encryptedSalary);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		ArrayList<BigInteger> fakeValues = cv.getExceptedFakeTuples(qObj, qObj.returnAttributes.get(0));
-		ArrayList<BigInteger> targetSet = new ArrayList<BigInteger>();
-		if (qObj.returnAttributes.get(0).equals("EMP_NO")){
-			for(SalaryCipher sc : scList){
-				targetSet.add(sc.getEmp_no());
-			}
-		}
-		else if (qObj.returnAttributes.get(0).equals("SALARY")){
-			for (SalaryCipher sc : scList){
-				targetSet.add(sc.getSalary());
-			}
-		}
-		else if (qObj.returnAttributes.get(0).equals("FROM_DATE")){
-			for (SalaryCipher sc : scList){
-				targetSet.add(sc.getFrom_date());
-			}
-		}
-		else{
-			for (SalaryCipher sc :scList){
-				targetSet.add(sc.getTo_date());
-			}
-		}
+//		ArrayList<BigInteger> fakeValues = cv.getExceptedFakeTuples(qObj, qObj.returnAttributes.get(0));
+//		ArrayList<BigInteger> targetSet = new ArrayList<BigInteger>();
+//		if (qObj.returnAttributes.get(0).equals("EMP_NO")){
+//			for(SalaryCipher sc : scList){
+//				targetSet.add(sc.getEmp_no());
+//			}
+//		}
+//		else if (qObj.returnAttributes.get(0).equals("SALARY")){
+//			for (SalaryCipher sc : scList){
+//				targetSet.add(sc.getSalary());
+//			}
+//		}
+//		else if (qObj.returnAttributes.get(0).equals("FROM_DATE")){
+//			for (SalaryCipher sc : scList){
+//				targetSet.add(sc.getFrom_date());
+//			}
+//		}
+//		else{
+//			for (SalaryCipher sc :scList){
+//				targetSet.add(sc.getTo_date());
+//			}
+//		}
 		return scList;
 		//return cv.checkCompleteness(fakeValues, targetSet);
 	}
 	
-	public ArrayList<Salary> decryptSalary(ArrayList<SalaryCipher> scList){
+	public ArrayList<Salary> decryptSalary(ArrayList<ArrayList<BigInteger>> scList, Query_object qObj){
 		ArrayList<Salary> salaries = new ArrayList<Salary>();
 		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
-		for(SalaryCipher sc : scList) {
-			//emp_no column
-			ColumnKey empIdKey = salaryTableKey.getSingleColumn("emp_no");
-			int emp_no = ope.OPE_decrypt(sc.getEmp_no(), empIdKey.getDataKey(),
-					empIdKey.getDomainBit(), empIdKey.getRangeBit()).intValue();
-			// salary column
-			ColumnKey salaryKey = salaryTableKey.getSingleColumn("salary");
-			int salary = ope.OPE_decrypt(sc.getSalary(), salaryKey.getDataKey(),
-					salaryKey.getDomainBit(), salaryKey.getRangeBit()).intValue();
-			// from_date column
-			ColumnKey fromDateKey = salaryTableKey.getSingleColumn("from_date");
-			Date fromDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(sc.getFrom_date(),
-					fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit()).longValue());
-			// to_date column
-			ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
-			Date toDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(sc.getTo_date(),
-					toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit()).longValue());
+		for(ArrayList<BigInteger> encSalary : scList) {
+			Salary s = new Salary();
+			for(int i = 0; i < qObj.returnAttributes.size(); i++) {
+				String returnAttribute = qObj.returnAttributes.get(i);
+				String attribute = returnAttribute;
+				String table = "";
+				if (returnAttribute.contains(".")) {
+					table = returnAttribute.split(".")[0];
+					attribute = returnAttribute.split(".")[1];
+				}
+				switch(attribute) {
+					case "EMP_NO":
+						ColumnKey empIdKey = salaryTableKey.getSingleColumn("emp_no");
+						int emp_no = ope.OPE_decrypt(encSalary.get(i), empIdKey.getDataKey(),
+								empIdKey.getDomainBit(), empIdKey.getRangeBit()).intValue();
+						s.setEmp_no(emp_no);
+						break;
+					case "SALARY":
+						ColumnKey salaryKey = salaryTableKey.getSingleColumn("salary");
+						int salary = ope.OPE_decrypt(encSalary.get(i), salaryKey.getDataKey(),
+								salaryKey.getDomainBit(), salaryKey.getRangeBit()).intValue();
+						s.setSalary(salary);
+						break;
+					case "FROM_DATE":
+						ColumnKey fromDateKey = salaryTableKey.getSingleColumn("from_date");
+						Date fromDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(encSalary.get(i),
+								fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit()).longValue());
+						s.setFromDate(fromDate);
+						break;
+					case "TO_DATE":
+						ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
+						Date toDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(encSalary.get(i),
+								toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit()).longValue());
+						s.setToDate(toDate);
+						break;
+					default:
+						break;
+				}					
+			}
 			
-			Salary s = new Salary(emp_no, salary, fromDate, toDate);
 			salaries.add(s);
 		}
 		return salaries;   

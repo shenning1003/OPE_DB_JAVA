@@ -71,16 +71,34 @@ class SalaryCipher{
 }
 
 class Salary{
-	private int emp_no;
-	private int salary;
-	private Date from_date;
-	private Date to_date;
+	// a column with default values means that column didn't return in query 
+	private int emp_no = -1;
+	private int salary = -1;
+	private Date from_date = null;
+	private Date to_date = null;
+	
+	public Salary() {
+		
+	}
 
 	public Salary(int emp_no, int salary, Date fromDate, Date toDate){
 		this.emp_no = emp_no;
 		this.salary = salary;
 		this.from_date = fromDate;
 		this.to_date = toDate;
+	}
+	
+	public void setEmp_no(int num) {
+		this.emp_no = num;
+	}
+	public void setSalary(int salary) {
+		this.salary = salary;
+	}
+	public void setFromDate(Date from) {
+		this.from_date = from;
+	}
+	public void setToDate(Date to) {
+		this.to_date = to;
 	}
 
 	public int getEmp_no(){
