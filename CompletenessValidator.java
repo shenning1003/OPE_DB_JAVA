@@ -102,11 +102,12 @@ public class CompletenessValidator {
 					found = true;
 			}
 			
-			if ()
+			if (!found)
+				missingTuples.add(fakeTuple);
 		}
 		
 		
-		return false;
+		return missingTuples;
 	}
 	
 	private BigInteger getCorrectIndex(BigInteger cipher, int key, int domainBit, int rangeBit, String comparator) {

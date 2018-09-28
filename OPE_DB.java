@@ -65,7 +65,7 @@ public class OPE_DB {
 			OPE_stmt = OPE_conn.createStatement();
 			ResultSet rs = OPE_stmt.executeQuery(translatedSql);
 			while(rs.next()) {
-				BigInteger emp_no = new BigInteger(rs.getString("emp_no"));
+				BigInteger emp_no = new BigInteger(rs.getString("emp_id"));
 				BigInteger salary = new BigInteger(rs.getString("salary"));
 				BigInteger from_date = new BigInteger(rs.getString("from_date"));
 				BigInteger to_date = new BigInteger(rs.getString("to_date"));
@@ -116,34 +116,32 @@ public class OPE_DB {
 				String returnAttribute = qObj.returnAttributes.get(i);
 				String attribute = returnAttribute;
 				String table = "";
-				if (returnAttribute.contains(".")) {
-					table = returnAttribute.split(".")[0];
-					attribute = returnAttribute.split(".")[1];
+				if (returnAttribute.contains("\\.")) {
+					table = returnAttribute.split("\\.")[0];
+					attribute = returnAttribute.split("\\.")[1];
 				}
 				switch(attribute) {
 					case "EMP_NO":
-						ColumnKey empIdKey = salaryTableKey.getSingleColumn("emp_no");
-						int emp_no = ope.OPE_decrypt(encSalary.get(i), empIdKey.getDataKey(),
-								empIdKey.getDomainBit(), empIdKey.getRangeBit()).intValue();
+						int emp_no = decryptEmpId(salaryTableKey, encSalary.get(i));
 						s.setEmp_no(emp_no);
 						break;
 					case "SALARY":
-						ColumnKey salaryKey = salaryTableKey.getSingleColumn("salary");
-						int salary = ope.OPE_decrypt(encSalary.get(i), salaryKey.getDataKey(),
-								salaryKey.getDomainBit(), salaryKey.getRangeBit()).intValue();
+						int salary = decryptSalary(salaryTableKey, encSalary.get(i));
 						s.setSalary(salary);
 						break;
 					case "FROM_DATE":
-						ColumnKey fromDateKey = salaryTableKey.getSingleColumn("from_date");
-						Date fromDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(encSalary.get(i),
-								fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit()).longValue());
+						Date fromDate = decryptFromDate(salaryTableKey, encSalary.get(i));
 						s.setFromDate(fromDate);
 						break;
 					case "TO_DATE":
-						ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
-						Date toDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(encSalary.get(i),
-								toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit()).longValue());
+						Date toDate = decryptToDate(salaryTableKey, encSalary.get(i));
 						s.setToDate(toDate);
+						break;
+					case "*":
+						s.setEmp_no(decryptEmpId(salaryTableKey, encSalary.get(i)));
+						s.setSalary(decryptSalary(salaryTableKey, encSalary.get(i+1)));
+						s.setFromDate(decryptFromDate(salaryTableKey, encSalary.get(i+2)));
+						s.setToDate(decryptToDate(salaryTableKey, encSalary.get(i+3)));
 						break;
 					default:
 						break;
@@ -154,6 +152,34 @@ public class OPE_DB {
 		}
 		return salaries;   
 	}
+	
+	private int decryptEmpId(TableKey salaryTableKey, BigInteger cipher) {
+		ColumnKey empIdKey = salaryTableKey.getSingleColumn("emp_no");
+		int emp_no = ope.OPE_decrypt(cipher, empIdKey.getDataKey(),
+				empIdKey.getDomainBit(), empIdKey.getRangeBit()).intValue();
+		return emp_no;
+	}
+	
+	private int decryptSalary(TableKey salaryTableKey, BigInteger cipher) {
+		ColumnKey salaryKey = salaryTableKey.getSingleColumn("salary");
+		int salary = ope.OPE_decrypt(cipher, salaryKey.getDataKey(),
+				salaryKey.getDomainBit(), salaryKey.getRangeBit()).intValue();
+		return salary;
+	}
+	
+	private Date decryptFromDate(TableKey salaryTableKey, BigInteger cipher) {
+		ColumnKey fromDateKey = salaryTableKey.getSingleColumn("from_date");
+		Date fromDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(cipher,
+				fromDateKey.getDataKey(), fromDateKey.getDomainBit(), fromDateKey.getRangeBit()).longValue());
+		return fromDate;
+	}
+	private Date decryptToDate(TableKey salaryTableKey, BigInteger cipher) {
+		ColumnKey toDateKey = salaryTableKey.getSingleColumn("to_date");
+		Date toDate = HelperFunctions.NumberToDate(ope.OPE_decrypt(cipher,
+				toDateKey.getDataKey(), toDateKey.getDomainBit(), toDateKey.getRangeBit()).longValue());
+		return toDate;
+	}
+	
 	
 	/*
 	 * create OPE version of database/tables
@@ -213,7 +239,7 @@ public class OPE_DB {
 			return 0;
 		ArrayList<Salary> salaries = new ArrayList<Salary>();
 		try {
-			PreparedStatement stm = DB_conn.getConnection().prepareStatement("SELECT * FROM employees.salaries LIMIT 10");
+			PreparedStatement stm = DB_conn.getConnection().prepareStatement("SELECT * FROM employees.salaries LIMIT 50000");
 			salaries = DB_conn.QuerySalary(stm);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

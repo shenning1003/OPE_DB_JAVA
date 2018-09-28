@@ -14,7 +14,7 @@ public class Query_parser {
 	
 	
 	static final char[] characters= {'<', '>', '='};
-	static final List<String> symbol = Arrays.asList("<",">","<>","<=",">=", "=");
+	static final List<String> comparator = Arrays.asList("<",">","<>","<=",">=", "=");
 	static final List<String> joinKeywords = Arrays.asList("LEFT", "INNER", "RIGHT", "OUTER", "JOIN");
 	KeyStructure dataBaseKeys;
 	OPE ope;
@@ -73,16 +73,23 @@ public class Query_parser {
 			}
 			int whereIndex = Arrays.asList(words).indexOf("WHERE");
 			// find all the tables and their alias
-			int current = fromIndex +1;
+			int current = fromIndex+1;
 			sb.append("FROM "); // building here
 			for (int i = fromIndex+1; i <= whereIndex; i++) {
 				sb.append(words[i]+ " ");
 				if (joinKeywords.contains(words[i])|| words[i].endsWith(",") || words[i].equals("WHERE")) {
 					if (i - current == 1) {
-						qObj.tableAlias.put(words[current], words[current]);
+						if (!words[current].contains(".")) {
+							qObj.tableAlias.put(words[current], words[current]);
+						}
+						else {
+							String text = words[current];
+							String[] split2 = text.split("\\.");
+							qObj.tableAlias.put(split2[1], split2[1]);
+						}
 					}
 					else if(i - current == 2) {
-						qObj.tableAlias.put(words[current+1], words[current]);
+						qObj.tableAlias.put(words[current+1], words[current]);  // alias to real name
 					}
 					else {
 						System.out.println("Error: parsing Join");
@@ -109,7 +116,7 @@ public class Query_parser {
 				if (words[i].equals("AND") || words[i].equals("OR") || words[i].equals("NOT")) {
 					sb.append(words[i]);
 				}
-				if(symbol.contains(words[i])) {
+				if(comparator.contains(words[i])) {
 					
 					String tableName="", columnName="";
 					if(!words[i-1].contains(".")) {

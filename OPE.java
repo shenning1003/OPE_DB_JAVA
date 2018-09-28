@@ -114,10 +114,10 @@ public class OPE {
 	public static void main(String args[]){
 		OPE ope = new OPE();
 		try {
-			System.out.println(ope.OPE_call('e', BigInteger.valueOf(10), 123455, 16, 64));
-			System.out.println(ope.OPE_call('e', BigInteger.valueOf(11), 123455, 16, 64));
-			System.out.println(ope.OPE_encrypt(BigInteger.valueOf(10), 123455, 16, 64));
-			System.out.println(ope.OPE_decrypt(new BigInteger("3121788886969026"), 123455, 16, 64));
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(10), 2000, 11, 64));
+//			System.out.println(ope.OPE_call('e', BigInteger.valueOf(11), 123455, 16, 64));
+//			System.out.println(ope.OPE_encrypt(BigInteger.valueOf(10), 123455, 16, 64));
+//			System.out.println(ope.OPE_decrypt(new BigInteger("3121788886969026"), 123455, 16, 64));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

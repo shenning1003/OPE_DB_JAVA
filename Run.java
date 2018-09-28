@@ -41,6 +41,7 @@ public class Run {
 		Query_parser sqlParser = new Query_parser(keys, ope);
 		DB_connection db = new DB_connection();
 		OPE_DB ope_db = new OPE_DB(db, keys);
+		CompletenessValidator cv = new CompletenessValidator(keys);
 
 		String testSQL = "SELECT * FROM employees.employees limit 10";
 		PreparedStatement stm;
@@ -50,18 +51,26 @@ public class Run {
 			//stm = db.getConnection().prepareStatement(testSQL);
 			//employees = db.QueryEmployee(stm);
 			// test create OPE_db
-			ope_db.createOPE_DB();
-			ope_db.EncryptDB();
+			//ope_db.createOPE_DB();
+			//ope_db.EncryptDB();
 			ope_db.InsertFakeTuple();
 
 		}
 		Scanner scan = new Scanner(System.in);
+ 		System.out.println("Please type the command: ...");
 		String query = scan.nextLine();
 		while(!query.toUpperCase().equals("EXIT")) {
-			Query_object qObj = sqlParser.parseQuery(query);
+			Query_object qObj = sqlParser.parseQuery("SELECT * FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY > 50000");
 			ArrayList<ArrayList<BigInteger>>  queryResults = ope_db.querySalary(qObj);
-			ArrayList<Salary> salaries = ope_db.decryptSalary(scList, qObj); 
-			
+			ArrayList<Salary> salaries = ope_db.decryptSalary(queryResults, qObj);
+			ArrayList<ArrayList<BigInteger>> missingTuples = cv.checkCompleteness(qObj, queryResults);
+			if(missingTuples.size() == 0) {
+				System.out.println("The returning results may be complete");
+			}
+			else {
+				System.out.println("The returning results are not complete");
+			}
+			query = scan.nextLine();
 		}
 		
 		
