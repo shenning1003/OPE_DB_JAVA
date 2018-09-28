@@ -194,11 +194,13 @@ public class OPE_DB {
 				+ "first_name VARCHAR(255), "
 				+ "last_name VARCHAR(255), "
 				+ "gender VARCHAR(255), "
-				+ "hire_date VARCHAR(255));";
+				+ "hire_date VARCHAR(255),"
+				+ "is_real boolean default 1);";
 		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id VARCHAR(255) NOT NULL, "
 				+ "salary VARCHAR(255), "
 				+ "from_date VARCHAR(255), "
-				+ "to_date VARCHAR(255));";
+				+ "to_date VARCHAR(255),"
+				+ "is_real boolean default 1);";
 		try {
 			Statement stmt = OPE_conn.createStatement();
 			result += stmt.executeUpdate(sql);
@@ -239,7 +241,7 @@ public class OPE_DB {
 			return 0;
 		ArrayList<Salary> salaries = new ArrayList<Salary>();
 		try {
-			PreparedStatement stm = DB_conn.getConnection().prepareStatement("SELECT * FROM employees.salaries LIMIT 50000");
+			PreparedStatement stm = DB_conn.getConnection().prepareStatement("SELECT * FROM employees.salaries LIMIT 2000");
 			salaries = DB_conn.QuerySalary(stm);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -248,7 +250,7 @@ public class OPE_DB {
 		if (salaries.size() == 0) {
 			return 0;
 		} else {
-			String sql = "INSERT INTO OPE_EMPLOYEE_DB.OPE_SALARY VALUES (?, ?, ?, ?)";
+			String sql = "INSERT INTO OPE_EMPLOYEE_DB.OPE_SALARY VALUES (?, ?, ?, ?, ?)";
 			try {
 				insertStatement = this.OPE_conn.prepareStatement(sql);
 				for (Salary s : salaries) {
@@ -274,6 +276,7 @@ public class OPE_DB {
 					insertStatement.setString(2, ope_salary.toString());
 					insertStatement.setString(3, ope_fromDate.toString());
 					insertStatement.setString(4, ope_toDate.toString());
+					insertStatement.setBoolean(5, true);
 					insertStatement.executeUpdate();
 				}
 
@@ -317,7 +320,7 @@ public class OPE_DB {
 	
 	private void InsertSalaryTable() throws SQLException {
 		PreparedStatement insertStatement = null;
-		String sql = "INSERT INTO OPE_EMPLOYEE_DB.OPE_SALARY VALUES (?,?,?,?)";
+		String sql = "INSERT INTO OPE_EMPLOYEE_DB.OPE_SALARY VALUES (?,?,?,?,?)";
 		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
 		int num = salaryTableKey.get_fkNum();
 		int fakeBit = salaryTableKey.getTableDomainBit();
@@ -340,6 +343,7 @@ public class OPE_DB {
 				insertStatement.setString(2, salary.toString());
 				insertStatement.setString(3, from_date.toString());
 				insertStatement.setString(4, to_date.toString());
+				insertStatement.setBoolean(5, false);
 				insertStatement.executeUpdate();
 				num --;
 			} catch (SQLException e) {

@@ -75,6 +75,24 @@ public class CompletenessValidator {
 	public ArrayList<ArrayList<BigInteger>> checkCompleteness(Query_object qObj, ArrayList<ArrayList<BigInteger>> queryResult){
 		ArrayList<ArrayList<BigInteger>> fakeTuples = new ArrayList<ArrayList<BigInteger>>();
 		ArrayList<ArrayList<BigInteger>> missingTuples = new ArrayList<ArrayList<BigInteger>>();
+		if (qObj.returnAttributes.contains("*")) {
+			qObj.returnAttributes.remove("*");
+			for (Map.Entry<String, String> entry: qObj.tableAlias.entrySet()) {
+				switch(entry.getValue()) {
+					case "OPE_salary":
+						qObj.returnAttributes.add("EMP_NO");
+						qObj.returnAttributes.add("SALARY");
+						qObj.returnAttributes.add("FROM_DATE");
+						qObj.returnAttributes.add("TO_DATE");
+						break;
+					case "OPE_EMPLOYEE":
+						break;
+					default:
+						break;
+							
+				}
+			}
+		}
 		for(int i = 0; i < qObj.returnAttributes.size(); i++) {
 			ArrayList<BigInteger> singleColumn = getExceptedFakeTuplesColumn(qObj, qObj.returnAttributes.get(i));
 			for (int j = 0; j < singleColumn.size(); j++){

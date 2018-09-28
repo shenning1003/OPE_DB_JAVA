@@ -51,8 +51,8 @@ public class Run {
 			//stm = db.getConnection().prepareStatement(testSQL);
 			//employees = db.QueryEmployee(stm);
 			// test create OPE_db
-			//ope_db.createOPE_DB();
-			//ope_db.EncryptDB();
+			ope_db.createOPE_DB();
+			ope_db.EncryptDB();
 			ope_db.InsertFakeTuple();
 
 		}
