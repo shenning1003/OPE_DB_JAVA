@@ -25,8 +25,8 @@ public class Query_parser {
 	
 	public Query_object parseQuery(String query) {
 		Query_object qObj = new Query_object();
-		
-		query = query.toUpperCase();  // all to uppercase
+		// adjust space and formalize the query.
+		query = query.toUpperCase();  
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < query.length(); i++) {
 			if(HelperFunctions.charArrayContains(query.charAt(i), characters)) {
@@ -62,6 +62,7 @@ public class Query_parser {
 		case "SELECT":
 			sb.append("SELECT");
 			int fromIndex = Arrays.asList(words).indexOf("FROM");
+			int whereIndex = Arrays.asList(words).indexOf("WHERE");
 			if(fromIndex == -1)
 				return null;
 			// find all the returning attributes
@@ -69,12 +70,12 @@ public class Query_parser {
 				sb.append(words[i] + " "); // building query here
 				if(words[i].equals(","))
 					continue;
-				qObj.returnAttributes.add(words[i].replaceAll(",*$", ""));
+				qObj.returnAttributes.add(words[i].replaceAll(",*$", "")); // "tableName.attribute"  format
 			}
-			int whereIndex = Arrays.asList(words).indexOf("WHERE");
-			// find all the tables and their alias
+			
+			// find all the tables and their alias from keyword " FROM "
 			int current = fromIndex+1;
-			sb.append("FROM "); // building here
+			sb.append("FROM "); 
 			for (int i = fromIndex+1; i <= whereIndex; i++) {
 				sb.append(words[i]+ " ");
 				if (joinKeywords.contains(words[i])|| words[i].endsWith(",") || words[i].equals("WHERE")) {
@@ -89,7 +90,13 @@ public class Query_parser {
 						}
 					}
 					else if(i - current == 2) {
-						qObj.tableAlias.put(words[current+1], words[current]);  // alias to real name
+						if(!words[current].contains(".")) {
+							qObj.tableAlias.put(words[current+1], words[current]);
+						}
+						else {
+							String[] split2 = words[current].split("\\.");
+							qObj.tableAlias.put(words[current]+1, split2[1]);
+						}
 					}
 					else {
 						System.out.println("Error: parsing Join");
@@ -109,12 +116,11 @@ public class Query_parser {
 				qObj.translatedQuery = query;
 				return qObj;
 			}
-			// else, from "where" to iterate all the conditions
+			// from "where" to iterate all the conditions
 			for (int i= whereIndex; i < words.length; i++) {
-				String text = words[i];
-				
 				if (words[i].equals("AND") || words[i].equals("OR") || words[i].equals("NOT")) {
-					sb.append(words[i]);
+					sb.append(words[i] + " ");
+					continue;
 				}
 				if(comparator.contains(words[i])) {
 					
@@ -125,6 +131,7 @@ public class Query_parser {
 						columnName = words[i-1];
 					}
 					else if(words[i].contains(".")){
+						// if specify table name, the must multiple table involved in this query
 						String[] split = words[i-1].split(".");
 						tableName = qObj.tableAlias.get(split[0]);
 						columnName = split[1];
@@ -214,7 +221,7 @@ public class Query_parser {
 		OPE ope = new OPE();
 		KeyStructure keys = KeyReader.readKey();
 		Query_parser parser = new Query_parser(keys, ope);
-		Query_object qo = parser.parseQuery("SELECT * FROM EMPLOYEE WHERE emp_no = 10 and first_name > \"ABC\"");
+		Query_object qo = parser.parseQuery("SELECT * FROM OPE_EMPLOYEE WHERE emp_no = 10 and first_name > \"ABC\"");
 		System.out.println(qo.translatedQuery);
 	}
 	
