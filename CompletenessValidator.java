@@ -62,7 +62,7 @@ public class CompletenessValidator {
 			int domainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getDomainBit();
 			int rangeBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getRangeBit();
 
-			BigInteger indexValue = getCorrectIndex(ar.boundary, key, domainBit, rangeBit, ar.symbol);
+			BigInteger indexValue = getCorrectIndex(ar.boundary, key, domainBit, rangeBit, ar.symbol, tableName, attributeName);
 			validationQuery.replaceAll(attributeName + " " + ar.symbol + " " + ar.boundary.toString(),
 					attributeName + " " + ar.symbol + " " + indexValue.toString());
 
@@ -104,9 +104,8 @@ public class CompletenessValidator {
 				}
 			}
 		}
-
+		// get all the indexes that should be returned. 
 		ArrayList<Integer> indexes = getFakeTupleIndexes(qObj);
-
 		for (int i = 0; i < qObj.returnAttributes.size(); i++) {
 			ArrayList<BigInteger> singleColumn = getFakeValueForColumn(qObj, qObj.returnAttributes.get(i), indexes);
 			for (int j = 0; j < singleColumn.size(); j++) {
@@ -140,7 +139,24 @@ public class CompletenessValidator {
 		return missingTuples;
 	}
 
-	private BigInteger getCorrectIndex(BigInteger cipher, int key, int domainBit, int rangeBit, String comparator) {
+	private BigInteger getCorrectIndex(BigInteger cipher, int key, int domainBit, int rangeBit, 
+			String comparator, String tableName, String columnName) {
+		int startIndex = 0;
+		TableKey tableKey = null;
+		switch(tableName.toUpperCase()){
+			case "OPE_SALARY":
+				tableKey = keys.getSingleTableKeys("OPE_SALARY");
+				break;
+			case "OPE_EMPLOYEE":
+				tableKey = keys.getSingleTableKeys("OPE_EMPLOYEE");
+				break;
+			case "":
+				break;
+			default:
+				break;
+		}
+		
+		
 		// BigInteger result = BigInteger.ZERO;
 		BigInteger decryptedValue = ope.simple_OPE_decrypt(cipher, key, domainBit, rangeBit);
 		BigInteger reEncryptedValue = ope.simple_OPE_encrypt(decryptedValue, key, domainBit, rangeBit);

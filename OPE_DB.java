@@ -324,24 +324,33 @@ public class OPE_DB {
 		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
 		int num = salaryTableKey.get_fkNum();
 		//int fakeBit = salaryTableKey.getTableDomainBit();
-		while (num > 0) {
+		int emp_No_start = salaryTableKey.getSingleColumn("emp_no").getFakeStartIndex();
+		int salary_start = salaryTableKey.getSingleColumn("salary").getFakeStartIndex();
+		int from_start = salaryTableKey.getSingleColumn("from_date").getFakeStartIndex();
+		int to_start = salaryTableKey.getSingleColumn("to_date").getFakeStartIndex();
+		
+		int emp_fakeKey = salaryTableKey.getSingleColumn("emp_no").getFakeKey();
+		int salary_fakeKey = salaryTableKey.getSingleColumn("salary").getFakeKey();
+		int from_fakeKey = salaryTableKey.getSingleColumn("from_date").getFakeKey();
+		int to_fakeKey = salaryTableKey.getSingleColumn("to_date").getFakeKey();
+		
+		int emp_domainBit = salaryTableKey.getSingleColumn("emp_no").getFakeDomainBit();
+		int salary_domainBit = salaryTableKey.getSingleColumn("salary").getFakeDomainBit();
+		int from_domainBit = salaryTableKey.getSingleColumn("from_date").getFakeDomainBit();
+		int to_domainBit = salaryTableKey.getSingleColumn("to_date").getFakeDomainBit();
+		
+		int emp_rangeBit = salaryTableKey.getSingleColumn("emp_no").getRangeBit();
+		int salary_rangeBit = salaryTableKey.getSingleColumn("salary").getRangeBit();
+		int from_rangeBit = salaryTableKey.getSingleColumn("from_date").getRangeBit();
+		int to_rangeBit = salaryTableKey.getSingleColumn("to_date").getRangeBit();
+		for (int i = 0; i < num; i ++) {
 			try {
 				insertStatement = OPE_conn.prepareStatement(sql);
 				
-				int fakeKey = salaryTableKey.getSingleColumn("emp_no").getFakeKey();
-				int rangeBit = salaryTableKey.getSingleColumn("emp_no").getRangeBit();
-				BigInteger emp_no = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("emp_no").getFakeKey(),
-						salaryTableKey.getSingleColumn("emp_no").getFakeDomainBit(), 
-						salaryTableKey.getSingleColumn("emp_no").getRangeBit());
-				BigInteger salary = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("salary").getFakeKey(),
-						fakeBit, 
-						salaryTableKey.getSingleColumn("salary").getRangeBit());
-				BigInteger from_date = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("from_date").getFakeKey(),
-						fakeBit, 
-						salaryTableKey.getSingleColumn("from_date").getRangeBit());
-				BigInteger to_date = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("to_date").getFakeKey(),
-						fakeBit, 
-						salaryTableKey.getSingleColumn("to_date").getRangeBit());
+				BigInteger emp_no = ope.OPE_encrypt(emp_No_start + i, emp_fakeKey, emp_domainBit, emp_rangeBit);
+				BigInteger salary = ope.OPE_encrypt(salary_start + i, salary_fakeKey, salary_domainBit, salary_rangeBit);
+				BigInteger from_date = ope.OPE_encrypt(from_start + i, from_fakeKey, from_domainBit, from_rangeBit);
+				BigInteger to_date = ope.OPE_encrypt(to_start + i, to_fakeKey, to_domainBit, to_rangeBit);
 				insertStatement.setString(1, emp_no.toString());
 				insertStatement.setString(2, salary.toString());
 				insertStatement.setString(3, from_date.toString());
