@@ -75,10 +75,15 @@ public class OPE {
 			// not totally random because hard to generate a random number in BigInteger.
 			// So only get randomize in the range of Long type
 			// if (upper - lower) > long.MAX_VALUE
-			if(upper.subtract(lower).compareTo(BigInteger.valueOf(Long.MAX_VALUE)) >= 0 ) {
+			BigInteger distance = upper.subtract(lower);
+			if (distance.compareTo(BigInteger.ZERO) < 0) {
+				System.out.println("ERROR");
+				System.out.println(plaintext + "   " +  domainBit + "   "+  rangeBit);
+			}
+			if(distance.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) >= 0 ) {
 				return lower.add(BigInteger.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)));
 			}else {
-				return lower.add(BigInteger.valueOf(ThreadLocalRandom.current().nextLong( upper.subtract(lower).longValue() )));
+				return lower.add(BigInteger.valueOf(ThreadLocalRandom.current().nextLong( distance.longValue() )));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -114,7 +119,12 @@ public class OPE {
 	public static void main(String args[]){
 		OPE ope = new OPE();
 		try {
-			System.out.println(ope.OPE_call('e', BigInteger.valueOf(10), 2000, 11, 64));
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(1), 654321, 50, 60));
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(20), 654321, 5, 60));
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(21), 654321, 5, 60));
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(22), 654321, 5, 60));
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(23), 654321, 5, 60));
+			System.out.println(ope.OPE_call('e', BigInteger.valueOf(24), 654321, 5, 60));
 //			System.out.println(ope.OPE_call('e', BigInteger.valueOf(11), 123455, 16, 64));
 //			System.out.println(ope.OPE_encrypt(BigInteger.valueOf(10), 123455, 16, 64));
 //			System.out.println(ope.OPE_decrypt(new BigInteger("3121788886969026"), 123455, 16, 64));

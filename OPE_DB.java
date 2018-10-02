@@ -189,17 +189,17 @@ public class OPE_DB {
 	public int createOPE_DB(){
 		int result = 0;
 		String sql = "CREATE DATABASE IF NOT EXISTS OPE_EMPLOYEE_DB;";
-		String empTable = "CREATE TABLE IF NOT EXISTS OPE_EMPLOYEE (emp_id VARCHAR(255) NOT NULL, "
-				+ "birth_date VARCHAR(255), "
-				+ "first_name VARCHAR(255), "
-				+ "last_name VARCHAR(255), "
-				+ "gender VARCHAR(255), "
-				+ "hire_date VARCHAR(255),"
+		String empTable = "CREATE TABLE IF NOT EXISTS OPE_EMPLOYEE (emp_id bigint NOT NULL, "
+				+ "birth_date bigint, "
+				+ "first_name bigint, "
+				+ "last_name bigint, "
+				+ "gender bigint, "
+				+ "hire_date bigint,"
 				+ "is_real boolean default 1);";
-		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id VARCHAR(255) NOT NULL, "
-				+ "salary VARCHAR(255), "
-				+ "from_date VARCHAR(255), "
-				+ "to_date VARCHAR(255),"
+		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id bigint NOT NULL, "
+				+ "salary bigint, "
+				+ "from_date bigint, "
+				+ "to_date bigint,"
 				+ "is_real boolean default 1);";
 		try {
 			Statement stmt = OPE_conn.createStatement();
@@ -323,12 +323,15 @@ public class OPE_DB {
 		String sql = "INSERT INTO OPE_EMPLOYEE_DB.OPE_SALARY VALUES (?,?,?,?,?)";
 		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
 		int num = salaryTableKey.get_fkNum();
-		int fakeBit = salaryTableKey.getTableDomainBit();
+		//int fakeBit = salaryTableKey.getTableDomainBit();
 		while (num > 0) {
 			try {
 				insertStatement = OPE_conn.prepareStatement(sql);
+				
+				int fakeKey = salaryTableKey.getSingleColumn("emp_no").getFakeKey();
+				int rangeBit = salaryTableKey.getSingleColumn("emp_no").getRangeBit();
 				BigInteger emp_no = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("emp_no").getFakeKey(),
-						fakeBit, 
+						salaryTableKey.getSingleColumn("emp_no").getFakeDomainBit(), 
 						salaryTableKey.getSingleColumn("emp_no").getRangeBit());
 				BigInteger salary = ope.OPE_encrypt(num, salaryTableKey.getSingleColumn("salary").getFakeKey(),
 						fakeBit, 

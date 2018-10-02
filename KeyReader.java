@@ -25,20 +25,22 @@ public class KeyReader {
 			TableKey tableKeys = null;
 			while((line = bufferedReader.readLine()) != null) {
 				String[] words = line.toUpperCase().split(" ");
-				if(words[0].equals("TABLE") && words.length == 4) {
+				if(words[0].equals("TABLE") && words.length == 3) {
 					if(tableKeys != null)
 						keys.addTableKey(tableKeys);
 					
-					tableKeys = new TableKey(words[1], Integer.parseInt(words[2]), Integer.parseInt(words[3]));
+					tableKeys = new TableKey(words[1], Integer.parseInt(words[2]));
 					tableKeys.setTableName(words[1]);
 					
-				}else if(words[0].equals("COLUMN") && words.length == 6) {
+				}else if(words[0].equals("COLUMN") && words.length == 8) {
 					ColumnKey column = new ColumnKey();
 					column.setColumnName(words[1]);
 					column.setDomainBit(Integer.parseInt(words[2]));
 					column.setRangeBit(Integer.parseInt(words[3]));
 					column.setDataKey(Integer.parseInt(words[4]));
 					column.setFakeKey(Integer.parseInt(words[5]));
+					column.setFakeStartIndex(Integer.parseInt(words[6]));
+					column.setFakeDomainBit(Integer.parseInt(words[7]));
 					tableKeys.addColumn(column);
 				}else {
 					//System.out.println("Warning");
@@ -79,21 +81,20 @@ class KeyStructure{
 class TableKey{
 	private int fkNum;
 	private String tableName;
-	private int tableDomainBit;
+//	private int tableDomainBit;
 	private ArrayList<ColumnKey> columnsKey; 
 	
-	public TableKey(String tableName, int fkNum, int tDomainBit) {
+	public TableKey(String tableName, int fkNum) {
 		this.fkNum = fkNum;
-		this.tableDomainBit = tDomainBit;
 		columnsKey = new ArrayList<ColumnKey>();
 	}
 	
-	public void setTableDomainBit(int bit) {	
-		this.tableDomainBit = bit;
-	}
-	public int getTableDomainBit() {
-		return this.tableDomainBit;
-	}
+//	public void setTableDomainBit(int bit) {	
+//		this.tableDomainBit = bit;
+//	}
+//	public int getTableDomainBit() {
+//		return this.tableDomainBit;
+//	}
 	
 	public String getTableName() {
 		return this.tableName;
@@ -129,6 +130,8 @@ class ColumnKey{
 	private int rangeBit;
 	private int dataKey;
 	private int fakeKey;
+	private int fakeStartIndex;
+	private int fakeRangeBit;
 	
 	public String getColumnName() {
 		return this.columnName;
@@ -160,4 +163,17 @@ class ColumnKey{
 	public void setFakeKey(int fakeKey) {
 		this.fakeKey = fakeKey;
 	}
+	public void setFakeStartIndex(int index) {
+		this.fakeStartIndex = index;
+	}
+	public void setFakeDomainBit(int bit) {
+		this.fakeRangeBit = bit;
+	}
+	public int getFakeStartIndex() {
+		return this.fakeStartIndex;
+	}
+	public int getFakeDomainBit() {
+		return this.fakeRangeBit;
+	}
+	
 }
