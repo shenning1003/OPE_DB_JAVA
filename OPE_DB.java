@@ -357,7 +357,7 @@ public class OPE_DB {
 				insertStatement.setString(4, to_date.toString());
 				insertStatement.setBoolean(5, false);
 				insertStatement.executeUpdate();
-				num --;
+				
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

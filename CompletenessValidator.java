@@ -131,11 +131,9 @@ public class CompletenessValidator {
 				if (allSame)
 					found = true;
 			}
-
 			if (!found)
 				missingTuples.add(fakeTuple);
 		}
-
 		return missingTuples;
 	}
 
@@ -146,16 +144,21 @@ public class CompletenessValidator {
 		switch(tableName.toUpperCase()){
 			case "OPE_SALARY":
 				tableKey = keys.getSingleTableKeys("OPE_SALARY");
+				startIndex = getFakeIndexFromSalaryTable(tableKey, columnName);
 				break;
 			case "OPE_EMPLOYEE":
 				tableKey = keys.getSingleTableKeys("OPE_EMPLOYEE");
+				startIndex = getFakeIndexFromEmployeeTable(tableKey, columnName);
 				break;
 			case "":
 				break;
 			default:
+				startIndex = -1;
 				break;
 		}
-		
+		if (startIndex == -1) {
+			System.out.println("---------------------- \n Error getting Fake Start Index for Table "+tableName + " column " + columnName);
+		}
 		
 		// BigInteger result = BigInteger.ZERO;
 		BigInteger decryptedValue = ope.simple_OPE_decrypt(cipher, key, domainBit, rangeBit);
@@ -173,7 +176,26 @@ public class CompletenessValidator {
 				return decryptedValue;
 			}
 		}
-		return decryptedValue;
+		return decryptedValue.subtract(BigInteger.valueOf(startIndex));
+	}
+	
+	private int getFakeIndexFromSalaryTable(TableKey tKey, String column) {
+		switch(column.toUpperCase()) {
+			case "EMP_NO":
+				return tKey.getSingleColumn("emp_no").getFakeStartIndex();
+			case "SALARY":
+				return tKey.getSingleColumn("salary").getFakeStartIndex();
+			case "FROM_DATE":
+				return tKey.getSingleColumn("from_date").getFakeStartIndex();
+			case "TO_DATE":
+				return tKey.getSingleColumn("to_date").getFakeStartIndex();
+			default:
+				return -1;
+		}
+	}
+	
+	private int getFakeIndexFromEmployeeTable(TableKey tKey, String column) {
+		return -1;
 	}
 
 	public static void main(String args[]) {
