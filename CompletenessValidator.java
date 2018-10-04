@@ -27,8 +27,9 @@ public class CompletenessValidator {
 		String tableName = "";
 		String attributeName = "";
 		int key;
-		int domainBit;
+		int fakeDomainBit;
 		int rangeBit;
+		int startIndex;
 		if (columnName.contains(".")) {
 			String[] words = columnName.split(".");
 			tableName = words[0];
@@ -39,10 +40,11 @@ public class CompletenessValidator {
 			attributeName = columnName;
 		}
 		key = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeKey();
-		domainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getDomainBit();
+		fakeDomainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeDomainBit();
 		rangeBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getRangeBit();
+		startIndex = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeStartIndex();
 		for (int i : indexes) {
-			BigInteger fakeValue = ope.OPE_encrypt(i, key, domainBit, rangeBit);
+			BigInteger fakeValue = ope.simple_OPE_encrypt(BigInteger.valueOf(i+startIndex), key, fakeDomainBit, rangeBit);
 			result.add(fakeValue);
 		}
 		return result;
@@ -57,13 +59,13 @@ public class CompletenessValidator {
 			String tableName = ar.table;
 			String attributeName = ar.attribute;
 			int numOfFake = keys.getSingleTableKeys(tableName).get_fkNum();
-			maxIndex = maxIndex < numOfFake ? maxIndex : numOfFake;
+			maxIndex = maxIndex < numOfFake ? numOfFake : maxIndex;
 			int key = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeKey();
-			int domainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getDomainBit();
+			int domainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeDomainBit();
 			int rangeBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getRangeBit();
 
 			BigInteger indexValue = getCorrectIndex(ar.boundary, key, domainBit, rangeBit, ar.symbol, tableName, attributeName);
-			validationQuery.replaceAll(attributeName + " " + ar.symbol + " " + ar.boundary.toString(),
+			validationQuery = validationQuery.replaceAll(attributeName + " " + ar.symbol + " " + ar.boundary.toString(),
 					attributeName + " " + ar.symbol + " " + indexValue.toString());
 
 		}
@@ -90,7 +92,7 @@ public class CompletenessValidator {
 			qObj.returnAttributes.remove("*");
 			for (Map.Entry<String, String> entry : qObj.tableAlias.entrySet()) {
 				switch (entry.getValue()) {
-				case "OPE_salary":
+				case "OPE_SALARY":
 					qObj.returnAttributes.add("EMP_NO");
 					qObj.returnAttributes.add("SALARY");
 					qObj.returnAttributes.add("FROM_DATE");

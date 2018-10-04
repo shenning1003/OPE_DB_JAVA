@@ -61,6 +61,7 @@ public class Run {
 		String query = scan.nextLine();
 		while(!query.toUpperCase().equals("EXIT")) {
 			Query_object qObj = sqlParser.parseQuery("SELECT * FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY > 70000");
+			//Query_object qObj = sqlParser.parseQuery("SELECT * FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY > 70000 and FROM_DATE > '1992-06-24'");
 			ArrayList<ArrayList<BigInteger>>  queryResults = ope_db.querySalary(qObj);
 			ArrayList<Salary> salaries = ope_db.decryptSalary(queryResults, qObj);
 			ArrayList<ArrayList<BigInteger>> missingTuples = cv.checkCompleteness(qObj, queryResults);

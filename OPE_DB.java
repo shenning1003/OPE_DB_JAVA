@@ -343,14 +343,14 @@ public class OPE_DB {
 		int salary_rangeBit = salaryTableKey.getSingleColumn("salary").getRangeBit();
 		int from_rangeBit = salaryTableKey.getSingleColumn("from_date").getRangeBit();
 		int to_rangeBit = salaryTableKey.getSingleColumn("to_date").getRangeBit();
-		for (int i = 0; i < num; i ++) {
+		for (int i = 1; i <= num; i ++) {
 			try {
 				insertStatement = OPE_conn.prepareStatement(sql);
 				
-				BigInteger emp_no = ope.OPE_encrypt(emp_No_start + i, emp_fakeKey, emp_domainBit, emp_rangeBit);
-				BigInteger salary = ope.OPE_encrypt(salary_start + i, salary_fakeKey, salary_domainBit, salary_rangeBit);
-				BigInteger from_date = ope.OPE_encrypt(from_start + i, from_fakeKey, from_domainBit, from_rangeBit);
-				BigInteger to_date = ope.OPE_encrypt(to_start + i, to_fakeKey, to_domainBit, to_rangeBit);
+				BigInteger emp_no = ope.simple_OPE_encrypt(BigInteger.valueOf(emp_No_start + i), emp_fakeKey, emp_domainBit, emp_rangeBit);
+				BigInteger salary = ope.simple_OPE_encrypt(BigInteger.valueOf(salary_start + i), salary_fakeKey, salary_domainBit, salary_rangeBit);
+				BigInteger from_date = ope.simple_OPE_encrypt(BigInteger.valueOf(from_start + i), from_fakeKey, from_domainBit, from_rangeBit);
+				BigInteger to_date = ope.simple_OPE_encrypt(BigInteger.valueOf(to_start + i), to_fakeKey, to_domainBit, to_rangeBit);
 				insertStatement.setString(1, emp_no.toString());
 				insertStatement.setString(2, salary.toString());
 				insertStatement.setString(3, from_date.toString());

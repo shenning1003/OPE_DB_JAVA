@@ -55,6 +55,7 @@ public class OPE {
 		}
 	}
 	
+	
 	public BigInteger simple_OPE_decrypt(BigInteger ciphertext, int key, int domainBit, int rangeBit) {
 		try {
 			return  OPE_call('d', ciphertext, key, domainBit, rangeBit);

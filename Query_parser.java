@@ -149,13 +149,13 @@ public class Query_parser {
 						String str = words[i+1].replaceAll("^\"|\"$", "");
 						value = HelperFunctions.StringToNumber(str);
 					}
-					else if(words[i+1].matches("\\d{4}-\\d{2}-\\d{2}")){
+					else if(words[i+1].matches("'([0-9]{4})-([0-9]{2})-([0-9]{2})'")){
 						//String str = words[i+1].replaceAll("[\\-]", "");
 						String pattern = "yyyy-MM-dd";
 						SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 						Date date = new Date();
 						try {
-							date = simpleDateFormat.parse(words[i+1]);
+							date = simpleDateFormat.parse(words[i+1].replaceAll("\'", ""));
 						} catch (ParseException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
