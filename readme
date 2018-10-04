@@ -1,2 +1,8 @@
-Project name: OPE_DB
-Package: OPE_DB
+Overview
+        This program is a working prototype that tries to protect the query completeness. It uses OPE to encrypt the data and insert fake tuples
+into the database. In this new scheme, the client is able to directly re-generate the fake tuples. Thus, validating the query completeness becomes 
+easier.
+
+How to Run
+        First, compile the OPE implementation from CrypteDB. 
+        
