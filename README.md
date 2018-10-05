@@ -16,7 +16,8 @@ The program works fine on Ubuntu 14.01 LTS. It may have problems to compile on o
 3. Download the employee sample database from 
 > https://github.com/datacharmer/test_db. 
 
-Import this database into your MySQL server and configure your own jdbc connections in **DB_connection.java** and **OPE_DB.java**
+Import this database into your MySQL server and configure your own jdbc connections in **DB_connection.java** and **OPE_DB.java**.
+
 4. To encrypt data and insert fake tuples, users must specify keys in file **keys.txt**. The structure of the keys are defined as follows:
 
         TABLE  table_name   num_of_fake_tuple
