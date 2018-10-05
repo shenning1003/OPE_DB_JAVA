@@ -1,6 +1,8 @@
 package OPE_DB;
 
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /*
@@ -68,6 +70,7 @@ class SalaryCipher{
 	public BigInteger getTo_date() {
 		return this.to_date;
 	}
+	
 }
 
 class Salary{
@@ -112,6 +115,11 @@ class Salary{
 	}
 	public Date getToDate(){
 		return this.to_date;
+	}
+	
+	public String toString() {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		return String.format("%s, %s, %s, %s", this.emp_no, this.salary, df.format(this.from_date), df.format(this.to_date));
 	}
 	
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 public class OPE {
-	private static String location = "/home/nshen/cs546_2/OPE/cryptdb/crypto/a.out";
+	private static String OPE_location = "/home/nshen/cs546_2/OPE/cryptdb/crypto/a.out";
 	
 	/*
 	 * operation: -d: decryption, -e: encryption
@@ -31,7 +31,7 @@ public class OPE {
 			params = new String[] {"-e", input.toString(), Integer.toString(key), Integer.toString(domainBit),
 					Integer.toString(rangeBit)};
 		}
-		Process p = r.exec(location + " " + String.join(" ", params)); // process to run OPE.c
+		Process p = r.exec(OPE_location + " " + String.join(" ", params)); // process to run OPE.c
 		BufferedInputStream in = new BufferedInputStream(p.getInputStream());
 		BufferedReader inBr = new BufferedReader(new InputStreamReader(in));
 		String line;

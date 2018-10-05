@@ -43,14 +43,7 @@ public class Run {
 		OPE_DB ope_db = new OPE_DB(db, keys);
 		CompletenessValidator cv = new CompletenessValidator(keys);
 
-		String testSQL = "SELECT * FROM employees.employees limit 10";
-		PreparedStatement stm;
-		//ArrayList<Employee> employees = new ArrayList<Employee>();
 		if (args.length ==1 && args[0].equals("-i")) {
-			// test SSL JDBC connection
-			//stm = db.getConnection().prepareStatement(testSQL);
-			//employees = db.QueryEmployee(stm);
-			// test create OPE_db
 			ope_db.createOPE_DB();
 			ope_db.EncryptDB();
 			ope_db.InsertFakeTuple();
@@ -64,7 +57,31 @@ public class Run {
 			//Query_object qObj = sqlParser.parseQuery("SELECT * FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY > 70000 and FROM_DATE > '1992-06-24'");
 			ArrayList<ArrayList<BigInteger>>  queryResults = ope_db.querySalary(qObj);
 			ArrayList<Salary> salaries = ope_db.decryptSalary(queryResults, qObj);
-			ArrayList<ArrayList<BigInteger>> missingTuples = cv.checkCompleteness(qObj, queryResults);
+			ArrayList<ArrayList<BigInteger>> fakeTuples = cv.getAllExpectedFakeTuples(qObj, queryResults);
+			ArrayList<ArrayList<BigInteger>> missingTuples = cv.compareDifferences(queryResults, fakeTuples);
+			System.out.println(String.format("---There are %d rows returned....Printing the first 10 rows", salaries.size()));
+			for (int i = 0 ; i <10; i ++) {
+				System.out.println(salaries.get(i).toString());
+			}
+			System.out.println(String.format("--------------------------------------------\n"
+					+ "There except %d fake tuples in query result.", fakeTuples.size()));
+			for (int i = 0 ; i <10; i ++) {
+				for (BigInteger value : fakeTuples.get(i)) {
+					System.out.print(value.toString() + ",  ");
+				}
+				System.out.println();
+			}
+			System.out.println(String.format("--------------------------------------------\n"
+					+ "There are %d fake tuples missing from query result", missingTuples.size()));
+			if(missingTuples.size() != 0) {
+				System.out.println("------The missing tuples are:-------------- ");
+				for(ArrayList<BigInteger> tuple : missingTuples) {
+					for(BigInteger value : tuple) {
+						System.out.print(value.toString() + ",  ");
+					}
+					System.out.println();
+				}
+			}
 			if(missingTuples.size() == 0) {
 				System.out.println("The returning results may be complete");
 			}

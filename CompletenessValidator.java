@@ -83,7 +83,7 @@ public class CompletenessValidator {
 	/*
 	 * returns the missing fake tuples.
 	 */
-	public ArrayList<ArrayList<BigInteger>> checkCompleteness(Query_object qObj,
+	public ArrayList<ArrayList<BigInteger>> getAllExpectedFakeTuples(Query_object qObj,
 			ArrayList<ArrayList<BigInteger>> queryResult) {
 		ArrayList<ArrayList<BigInteger>> fakeTuples = new ArrayList<ArrayList<BigInteger>>();
 		ArrayList<ArrayList<BigInteger>> missingTuples = new ArrayList<ArrayList<BigInteger>>();
@@ -120,7 +120,14 @@ public class CompletenessValidator {
 				}
 			}
 		}
-
+		
+		return fakeTuples;
+		
+	}
+	
+	public ArrayList<ArrayList<BigInteger>> compareDifferences(ArrayList<ArrayList<BigInteger>> queryResult, 
+			ArrayList<ArrayList<BigInteger>> fakeTuples){
+		ArrayList<ArrayList<BigInteger>> missingTuples = new ArrayList<ArrayList<BigInteger>>();
 		for (ArrayList<BigInteger> fakeTuple : fakeTuples) {
 			boolean found = false;
 			for (ArrayList<BigInteger> tuple : queryResult) {
@@ -128,10 +135,13 @@ public class CompletenessValidator {
 				for (int k = 0; k < tuple.size(); k++) {
 					if (!fakeTuple.get(k).equals(tuple.get(k))) {
 						allSame = false;
+						continue;
 					}
 				}
-				if (allSame)
+				if (allSame) {
 					found = true;
+					break;
+				}				
 			}
 			if (!found)
 				missingTuples.add(fakeTuple);
