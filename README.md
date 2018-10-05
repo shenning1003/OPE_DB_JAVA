@@ -15,6 +15,7 @@ It works find on Ubuntu 14.01 LTS. It may have problem on other linux platform.
 2. Goes to **OPE.java**, set the variable 'OPE_location' as the location of the compiled output file. (in this case, will be 'replace_folder_location\a.out' ) 
 3. Download the employee sample database from 
 > https://github.com/datacharmer/test_db. 
+
 Import this database into your MySQL server and configure your own jdbc connections in **DB_connection.java** and **OPE_DB.java**
 4. To encrypt data and insert fake tuples, users must specify keys in file **keys.txt**. The structure of the keys are defined as follows:
 
