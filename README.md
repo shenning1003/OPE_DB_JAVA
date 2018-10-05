@@ -16,12 +16,16 @@ It works find on Ubuntu 14.01 LTS. It may have problem on other linux platform.
 > https://github.com/datacharmer/test_db. 
 Import this database into your MySQL server and configure your own jdbc connections in **DB_connection.java** and **OPE_DB.java**
 4. To encrypt data and insert fake tuples, users must specify keys in file **keys.txt**. The structure of the keys are defined as follows:
+
+        '''
         TABLE  table_name   num_of_fake_tuple
         COLUMN column_name  domainBit,   rangeBit,  data_key,  fake_tuple_key,  fake_tuple_start_index,  fake_tuple_domainBit
         COLUMN column_name  domainBit,   rangeBit,  data_key,  fake_tuple_key,  fake_tuple_start_index,  fake_tuple_domainBit
         ................
         ................
-        For example, for the table "employee", the keys looks like:
+        '''
+ For example, for the table "employee", the keys looks like:
+ 
         '''
         TABLE OPE_EMPLOYEE 100
         COLUMN birth_date 27 60 123456 654321 2260 14
