@@ -60,7 +60,7 @@ public class Query_parser {
 		case "DELETE":
 			break;
 		case "SELECT":
-			sb.append("SELECT");
+			sb.append("SELECT ");
 			int fromIndex = Arrays.asList(words).indexOf("FROM");
 			int whereIndex = Arrays.asList(words).indexOf("WHERE");
 			if(fromIndex == -1)
@@ -116,6 +116,34 @@ public class Query_parser {
 				qObj.translatedQuery = query;
 				return qObj;
 			}
+			
+			// deal with the case of select * 
+			ArrayList<String> returningAttribute = new ArrayList<String>();
+			for (String attribute : qObj.returnAttributes) {
+				if(attribute.contains("*")) {
+					for (Map.Entry<String, String> entry : qObj.tableAlias.entrySet()) {
+						switch (entry.getValue()) {
+						case "OPE_SALARY":
+							returningAttribute.add("EMP_NO");
+							returningAttribute.add("SALARY");
+							returningAttribute.add("FROM_DATE");
+							returningAttribute.add("TO_DATE");
+							break;
+						case "OPE_EMPLOYEE":
+							break;
+						default:
+							break;
+
+						}
+					}
+				}
+				else {
+					returningAttribute.add(attribute);
+				}		
+			}
+			qObj.returnAttributes = returningAttribute;
+			
+			
 			// from "where" to iterate all the conditions
 			for (int i= whereIndex; i < words.length; i++) {
 				if (words[i].equals("AND") || words[i].equals("OR") || words[i].equals("NOT")) {
@@ -171,14 +199,14 @@ public class Query_parser {
 						cipherValue = ope.simple_OPE_encrypt(value, key, domainBit, rangeBit);
 						AttributeRange ar = new AttributeRange(tableName, columnName, cipherValue, words[i]);
 						qObj.addRangeColumn(ar);
-						sb.append(words[i-1] + " < "  + cipherValue.toString() + " ");
+						sb.append(words[i-1] + " "+ words[i] + " "  + cipherValue.toString() + " ");
 					}
 					else if (words[i].equals(">") || words[i].equals(">=")) {
 						cipherValue = ope.simple_OPE_encrypt(value.add(BigInteger.ONE)
 								, key, domainBit, rangeBit);
 						AttributeRange ar = new AttributeRange(tableName, columnName, cipherValue, words[i]);
 						qObj.addRangeColumn(ar);
-						sb.append(words[i-1] + " > " + cipherValue.toString() + " ");
+						sb.append(words[i-1] + " "+ words[i]+" " + cipherValue.toString() + " ");
 					}
 					else if(words[i].equals("=")) {
 						BigInteger upper = ope.simple_OPE_encrypt(value.add(BigInteger.ONE)

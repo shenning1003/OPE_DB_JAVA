@@ -60,11 +60,11 @@ public class CompletenessValidator {
 			String attributeName = ar.attribute;
 			int numOfFake = keys.getSingleTableKeys(tableName).get_fkNum();
 			maxIndex = maxIndex < numOfFake ? numOfFake : maxIndex;
-			int key = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeKey();
-			int domainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeDomainBit();
+			int fakeKey = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeKey();
+			int fakeDomainBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getFakeDomainBit();
 			int rangeBit = keys.getSingleTableKeys(tableName).getSingleColumn(attributeName).getRangeBit();
 
-			BigInteger indexValue = getCorrectIndex(ar.boundary, key, domainBit, rangeBit, ar.symbol, tableName, attributeName);
+			BigInteger indexValue = getCorrectIndex(ar.boundary, fakeKey, fakeDomainBit, rangeBit, ar.symbol, tableName, attributeName);
 			validationQuery = validationQuery.replaceAll(attributeName + " " + ar.symbol + " " + ar.boundary.toString(),
 					attributeName + " " + ar.symbol + " " + indexValue.toString());
 
@@ -86,26 +86,6 @@ public class CompletenessValidator {
 	public ArrayList<ArrayList<BigInteger>> getAllExpectedFakeTuples(Query_object qObj,
 			ArrayList<ArrayList<BigInteger>> queryResult) {
 		ArrayList<ArrayList<BigInteger>> fakeTuples = new ArrayList<ArrayList<BigInteger>>();
-		ArrayList<ArrayList<BigInteger>> missingTuples = new ArrayList<ArrayList<BigInteger>>();
-		// special handling for "select * ", currently join queyr not supported
-		if (qObj.returnAttributes.contains("*")) {
-			qObj.returnAttributes.remove("*");
-			for (Map.Entry<String, String> entry : qObj.tableAlias.entrySet()) {
-				switch (entry.getValue()) {
-				case "OPE_SALARY":
-					qObj.returnAttributes.add("EMP_NO");
-					qObj.returnAttributes.add("SALARY");
-					qObj.returnAttributes.add("FROM_DATE");
-					qObj.returnAttributes.add("TO_DATE");
-					break;
-				case "OPE_EMPLOYEE":
-					break;
-				default:
-					break;
-
-				}
-			}
-		}
 		// get all the indexes that should be returned. 
 		ArrayList<Integer> indexes = getFakeTupleIndexes(qObj);
 		for (int i = 0; i < qObj.returnAttributes.size(); i++) {
@@ -176,19 +156,22 @@ public class CompletenessValidator {
 		BigInteger decryptedValue = ope.simple_OPE_decrypt(cipher, key, domainBit, rangeBit);
 		BigInteger reEncryptedValue = ope.simple_OPE_encrypt(decryptedValue, key, domainBit, rangeBit);
 		if (reEncryptedValue.compareTo(cipher) == 1) {
-			if (comparator.equals(">") || comparator.equals(">=")) {
-				return decryptedValue;
-			} else if (comparator.equals("<") || comparator.equals("<=")) {
-				return decryptedValue.add(BigInteger.ONE);
-			}
+//			if (comparator.equals(">") || comparator.equals(">=")) {
+//				return decryptedValue.subtract(BigInteger.valueOf(startIndex));
+//			} else if (comparator.equals("<") || comparator.equals("<=")) {
+//				return decryptedValue.add(BigInteger.ONE).subtract(BigInteger.valueOf(startIndex));
+//			}
+			return decryptedValue.subtract(BigInteger.ONE).subtract(BigInteger.valueOf(startIndex));
 		} else if (reEncryptedValue.compareTo(cipher) == -1) {
-			if (comparator.equals(">") || comparator.equals(">=")) {
-				return decryptedValue.subtract(BigInteger.ONE);
-			} else if (comparator.equals("<") || comparator.equals("<=")) {
-				return decryptedValue;
-			}
+//			if (comparator.equals(">") || comparator.equals(">=")) {
+//				return decryptedValue.subtract(BigInteger.ONE).subtract(BigInteger.valueOf(startIndex));
+//			} else if (comparator.equals("<") || comparator.equals("<=")) {
+//				return decryptedValue.subtract(BigInteger.valueOf(startIndex));
+//			}
+			return decryptedValue.subtract(BigInteger.valueOf(startIndex));
 		}
-		return decryptedValue.subtract(BigInteger.valueOf(startIndex));
+		BigInteger index = decryptedValue.subtract(BigInteger.valueOf(startIndex));
+		return index;
 	}
 	
 	private int getFakeIndexFromSalaryTable(TableKey tKey, String column) {
@@ -210,19 +193,19 @@ public class CompletenessValidator {
 		return -1;
 	}
 
-	public static void main(String args[]) {
-		String input = "SELECT * FROM TABLE WHERE A > 20 OR ( C < 10 AND B >= 6 )";
-		String test2 = "A > 20 OR ( C < 10 AND B >= 6 )";
-		Conversion c = new Conversion(test2.split(" "));
-		System.out.println(c.inToPost());
-		ExpressionTree t = new ExpressionTree();
-		t.insert(input);
-		t.postOrder(t.getRoot());
-		for (int i = 0; i < 50; i++) {
-			if (t.validate(i, t.getRoot()))
-				System.out.println(i);
-		}
-	}
+//	public static void main(String args[]) {
+//		String input = "SELECT * FROM TABLE WHERE A > 20 OR ( C < 10 AND B >= 6 )";
+//		String test2 = "A > 20 OR ( C < 10 AND B >= 6 )";
+//		Conversion c = new Conversion(test2.split(" "));
+//		System.out.println(c.inToPost());
+//		ExpressionTree t = new ExpressionTree();
+//		t.insert(input);
+//		t.postOrder(t.getRoot());
+//		for (int i = 0; i < 50; i++) {
+//			if (t.validate(i, t.getRoot()))
+//				System.out.println(i);
+//		}
+//	}
 
 }
 

@@ -8,11 +8,9 @@ import java.util.ArrayList;
 
 /*
  * The keys are stored in such a structure.
- * TABLE XXX Num_of_fake_tuples
- * COLUMN XXX DOMAIN RANGE KEY1 KEY2 
- * (numbers like birthday, not starts from 0. So for encryption, 
- * we encrypt (VALUE - DOMAIN). Same changes in decryption )
- * ......
+ * TABLE  table_name   num_of_fake_tuple
+ * COLUMN column_name  domainBit,   rangeBit,  data_key,  fake_tuple_key,  fake_tuple_start_index,  fake_tuple_domainBit
+ * COLUMN column_name  domainBit,   rangeBit,  data_key,  fake_tuple_key,  fake_tuple_start_index,  fake_tuple_domainBit
  */
 public class KeyReader {
 	public static KeyStructure readKey() {

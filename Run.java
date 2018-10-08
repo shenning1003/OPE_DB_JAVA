@@ -53,24 +53,36 @@ public class Run {
   		System.out.println("Please type the command: ...");
 		String query = scan.nextLine();
 		while(!query.toUpperCase().equals("EXIT")) {
-			Query_object qObj = sqlParser.parseQuery("SELECT * FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY > 70000");
-			//Query_object qObj = sqlParser.parseQuery("SELECT * FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY > 70000 and FROM_DATE > '1992-06-24'");
+			//Query_object qObj = sqlParser.parseQuery("SELECT * FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY > 70000");
+			Query_object qObj = sqlParser.parseQuery("SELECT EMP_NO FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY >70000 AND FROM_DATE <= '1992-06-24'");
+			long start = System.currentTimeMillis();
 			ArrayList<ArrayList<BigInteger>>  queryResults = ope_db.querySalary(qObj);
+			long end = System.currentTimeMillis();
+			System.out.println("Query Took : " + ((end-start)/1000));
+			start = System.currentTimeMillis();
 			ArrayList<Salary> salaries = ope_db.decryptSalary(queryResults, qObj);
+			end = System.currentTimeMillis();
+			System.out.println("Translate took : " + ((end-start)/1000));
+			start = System.currentTimeMillis();
 			ArrayList<ArrayList<BigInteger>> fakeTuples = cv.getAllExpectedFakeTuples(qObj, queryResults);
 			ArrayList<ArrayList<BigInteger>> missingTuples = cv.compareDifferences(queryResults, fakeTuples);
+			end = System.currentTimeMillis();
+			System.out.println("Validation took: " + ((end-start)/1000));
 			System.out.println(String.format("---There are %d rows returned....Printing the first 10 rows", salaries.size()));
-			for (int i = 0 ; i <10; i ++) {
-				System.out.println(salaries.get(i).toString());
-			}
-			System.out.println(String.format("--------------------------------------------\n"
-					+ "There except %d fake tuples in query result.", fakeTuples.size()));
-			for (int i = 0 ; i <10; i ++) {
-				for (BigInteger value : fakeTuples.get(i)) {
-					System.out.print(value.toString() + ",  ");
+			for (int i = 0 ; i <queryResults.size(); i ++) {
+				for (BigInteger value : queryResults.get(i)) {
+					System.out.print(value  + ",  ");
 				}
 				System.out.println();
 			}
+//			System.out.println(String.format("--------------------------------------------\n"
+//					+ "There except %d fake tuples in query result...Printing the first 10 tuples", fakeTuples.size()));
+//			for (int i = 0 ; i <10; i ++) {
+//				for (BigInteger value : fakeTuples.get(i)) {
+//					System.out.print(value.toString() + ",  ");
+//				}
+//				System.out.println();
+//			}
 			System.out.println(String.format("--------------------------------------------\n"
 					+ "There are %d fake tuples missing from query result", missingTuples.size()));
 			if(missingTuples.size() != 0) {

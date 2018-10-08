@@ -60,51 +60,34 @@ public class OPE_DB {
 	
 	public ArrayList<ArrayList<BigInteger>> querySalary(Query_object qObj) {
 		String translatedSql = qObj.getTranslatedQuery();
+		int columnNum = qObj.returnAttributes.size();
 		ArrayList<ArrayList<BigInteger>> scList= new ArrayList<ArrayList<BigInteger>>();
 		try {
 			OPE_stmt = OPE_conn.createStatement();
 			ResultSet rs = OPE_stmt.executeQuery(translatedSql);
 			while(rs.next()) {
-				BigInteger emp_no = new BigInteger(rs.getString("emp_id"));
-				BigInteger salary = new BigInteger(rs.getString("salary"));
-				BigInteger from_date = new BigInteger(rs.getString("from_date"));
-				BigInteger to_date = new BigInteger(rs.getString("to_date"));
-				ArrayList<BigInteger> encryptedSalary = new ArrayList<BigInteger>();
-				encryptedSalary.add(emp_no);
-				encryptedSalary.add(salary);
-				encryptedSalary.add(from_date);
-				encryptedSalary.add(to_date);
-				scList.add(encryptedSalary);
+				ArrayList<BigInteger> encryptedTuple = new ArrayList<BigInteger>();
+				for(int i = 1; i <=columnNum; i++) {
+					encryptedTuple.add(new BigInteger(rs.getString(i)));
+				}
+				scList.add(encryptedTuple);
+//				BigInteger emp_no = new BigInteger(rs.getString("emp_id"));
+//				BigInteger salary = new BigInteger(rs.getString("salary"));
+//				BigInteger from_date = new BigInteger(rs.getString("from_date"));
+//				BigInteger to_date = new BigInteger(rs.getString("to_date"));
+//				ArrayList<BigInteger> encryptedSalary = new ArrayList<BigInteger>();
+//				encryptedSalary.add(emp_no);
+//				encryptedSalary.add(salary);
+//				encryptedSalary.add(from_date);
+//				encryptedSalary.add(to_date);
+//				scList.add(encryptedSalary);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-//		ArrayList<BigInteger> fakeValues = cv.getExceptedFakeTuples(qObj, qObj.returnAttributes.get(0));
-//		ArrayList<BigInteger> targetSet = new ArrayList<BigInteger>();
-//		if (qObj.returnAttributes.get(0).equals("EMP_NO")){
-//			for(SalaryCipher sc : scList){
-//				targetSet.add(sc.getEmp_no());
-//			}
-//		}
-//		else if (qObj.returnAttributes.get(0).equals("SALARY")){
-//			for (SalaryCipher sc : scList){
-//				targetSet.add(sc.getSalary());
-//			}
-//		}
-//		else if (qObj.returnAttributes.get(0).equals("FROM_DATE")){
-//			for (SalaryCipher sc : scList){
-//				targetSet.add(sc.getFrom_date());
-//			}
-//		}
-//		else{
-//			for (SalaryCipher sc :scList){
-//				targetSet.add(sc.getTo_date());
-//			}
-//		}
 		return scList;
-		//return cv.checkCompleteness(fakeValues, targetSet);
 	}
 	
 	public ArrayList<Salary> decryptSalary(ArrayList<ArrayList<BigInteger>> scList, Query_object qObj){
@@ -136,12 +119,6 @@ public class OPE_DB {
 					case "TO_DATE":
 						Date toDate = decryptToDate(salaryTableKey, encSalary.get(i));
 						s.setToDate(toDate);
-						break;
-					case "*":
-						s.setEmp_no(decryptEmpId(salaryTableKey, encSalary.get(i)));
-						s.setSalary(decryptSalary(salaryTableKey, encSalary.get(i+1)));
-						s.setFromDate(decryptFromDate(salaryTableKey, encSalary.get(i+2)));
-						s.setToDate(decryptToDate(salaryTableKey, encSalary.get(i+3)));
 						break;
 					default:
 						break;
@@ -189,14 +166,14 @@ public class OPE_DB {
 	public int createOPE_DB(){
 		int result = 0;
 		String sql = "CREATE DATABASE IF NOT EXISTS OPE_EMPLOYEE_DB;";
-		String empTable = "CREATE TABLE IF NOT EXISTS OPE_EMPLOYEE (emp_id bigint NOT NULL, "
+		String empTable = "CREATE TABLE IF NOT EXISTS OPE_EMPLOYEE (emp_no bigint NOT NULL, "
 				+ "birth_date bigint, "
 				+ "first_name bigint, "
 				+ "last_name bigint, "
 				+ "gender bigint, "
 				+ "hire_date bigint,"
 				+ "is_real boolean default 1);";
-		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_id bigint NOT NULL, "
+		String salaryTable = "CREATE TABLE IF NOT EXISTS OPE_SALARY (emp_no bigint NOT NULL, "
 				+ "salary bigint, "
 				+ "from_date bigint, "
 				+ "to_date bigint,"
