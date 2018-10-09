@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 /*
  * Should include the functions of: Enc/Dec database, query encrypted DB and verify completeness; inserting/removing 
@@ -58,7 +59,7 @@ public class OPE_DB {
 		}
 	}
 	
-	public ArrayList<ArrayList<BigInteger>> querySalary(Query_object qObj) {
+	public ArrayList<ArrayList<BigInteger>> queryOPE_DB(Query_object qObj) {
 		String translatedSql = qObj.getTranslatedQuery();
 		int columnNum = qObj.returnAttributes.size();
 		ArrayList<ArrayList<BigInteger>> scList= new ArrayList<ArrayList<BigInteger>>();
@@ -90,7 +91,32 @@ public class OPE_DB {
 		return scList;
 	}
 	
-	public ArrayList<Salary> decryptSalary(ArrayList<ArrayList<BigInteger>> scList, Query_object qObj){
+	public ArrayList<Salary> decryptOPE_DB(ArrayList<ArrayList<BigInteger>> scList, Query_object qObj){
+//		ArrayList<ArrayList<String>> decryptedList = new ArrayList<ArrayList<String>>();
+//		for (int i = 0; i < qObj.returnAttributes.size(); i++){
+//			String returnColumn = qObj.returnAttributes.get(i);
+//			String tableName;
+//			String columnName;
+//			if(returnColumn.contains(".")){
+//				String[] split = returnColumn.split(".");
+//				tableName = split[0];
+//				columnName = split[1];
+//			}
+//			else{
+//				Map.Entry<String, String> entry = qObj.tableAlias.entrySet().iterator().next();
+//				tableName = entry.getValue();
+//				columnName = returnColumn;
+//			}
+//			TableKey tableKey = keyFile.getSingleTableKeys(tableName);
+//			ColumnKey columnKey = tableKey.getSingleColumn(columnName);
+//			int dataKey = columnKey.getDataKey();
+//			int domainBit = columnKey.getDomainBit();
+//			int rangeBit = columnKey.getRangeBit();
+//			for(ArrayList<BigInteger> tuple : scList){
+//				String plaintext = ope.OPE_decrypt(tuple.get(i), dataKey, domainBit, rangeBit).toString();
+//			}
+//			
+//		}
 		ArrayList<Salary> salaries = new ArrayList<Salary>();
 		TableKey salaryTableKey = keyFile.getSingleTableKeys("ope_salary");
 		for(ArrayList<BigInteger> encSalary : scList) {
@@ -206,6 +232,11 @@ public class OPE_DB {
 		}
 		
 	}
+	
+	private int EncryptEmployeeTable() throws SQLException{
+		PreparedStatement insertStatement = null;
+		TableKEy 
+	}
 
 	/*
 	 * Return status code, if success return 1, else return 0;
@@ -275,7 +306,6 @@ public class OPE_DB {
 				  }
 				  OPE_conn.setAutoCommit(true);
 			}
-
 			return 1;
 		}
 

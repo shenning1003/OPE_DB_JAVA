@@ -56,11 +56,11 @@ public class Run {
 			//Query_object qObj = sqlParser.parseQuery("SELECT * FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY > 70000");
 			Query_object qObj = sqlParser.parseQuery("SELECT EMP_NO FROM OPE_EMPLOYEE_DB.OPE_SALARY WHERE SALARY >70000 AND FROM_DATE <= '1992-06-24'");
 			long start = System.currentTimeMillis();
-			ArrayList<ArrayList<BigInteger>>  queryResults = ope_db.querySalary(qObj);
+			ArrayList<ArrayList<BigInteger>>  queryResults = ope_db.queryOPE_DB(qObj);
 			long end = System.currentTimeMillis();
 			System.out.println("Query Took : " + ((end-start)/1000));
 			start = System.currentTimeMillis();
-			ArrayList<Salary> salaries = ope_db.decryptSalary(queryResults, qObj);
+			ArrayList<Salary> salaries = ope_db.decryptOPE_DB(queryResults, qObj);
 			end = System.currentTimeMillis();
 			System.out.println("Translate took : " + ((end-start)/1000));
 			start = System.currentTimeMillis();
