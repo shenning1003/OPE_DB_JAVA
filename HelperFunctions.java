@@ -71,6 +71,8 @@ public class HelperFunctions {
 	}
 	
 	
+	
+	
 //	public static void main(String args[]) {
 //		BigInteger test = StringToNumber("HELLO");
 //		System.out.println(test);
